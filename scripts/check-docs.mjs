@@ -134,9 +134,12 @@ if (since !== "" && changed.includes("package.json")) {
     ...Object.keys(json.dependencies ?? {}),
     ...Object.keys(json.devDependencies ?? {}),
   ];
-  const added = names(after).filter((name) => !names(before).includes(name));
-  if (before !== null && added.length > 0)
-    decisions.push(`패키지를 더했다: ${added.join(", ")}`);
+  // 견줄 옛 파일이 없으면(커밋이 하나도 없는 새 저장소, 처음 만든 package.json) 보지 않는다.
+  const added =
+    before === null
+      ? []
+      : names(after).filter((name) => !names(before).includes(name));
+  if (added.length > 0) decisions.push(`패키지를 더했다: ${added.join(", ")}`);
 }
 if (since !== "" && changed.includes("project.config.json")) {
   const before = parse(contentAt(since, "project.config.json"));

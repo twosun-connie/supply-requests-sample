@@ -22,8 +22,8 @@ argument-hint: "[만들 기능 또는 문서 이름]"
 |---|---|---|
 | `docs/rules.md` | `templates/rules.md` | 용어, 데이터 항목, 상태 흐름, 업무 규칙, 하지 않는 것 |
 | `docs/permissions.md` | 저장소의 기존 파일 | 역할, 역할별 권한(권한 코드), 행 단위 규칙 |
-| `docs/screens.md` | `templates/screens.md` | 화면 목록: 경로, 누가, 보이는 것, 할 수 있는 것 |
-| `docs/schema.md` | `templates/schema.md` | 테이블과 열, 변경 기록 |
+| `docs/screens.md` | 저장소의 기존 파일에 행을 더한다(없으면 `templates/screens.md`) | 화면 목록: 경로, 누가, 보이는 것, 할 수 있는 것 |
+| `docs/schema.md` | 저장소의 기존 파일에 테이블을 더한다(없으면 `templates/schema.md`) | 테이블과 열, 변경 기록. 시작 마이그레이션의 네 테이블은 이미 적혀 있다 |
 | `docs/design.md` | `templates/design.md` | 방향, 화면 뼈대, 공통 규칙 |
 
 4. **규칙은 검사할 수 있는 문장으로 쓴다.** "적절히 처리한다"가 아니라 "제출 상태가 아니면 승인할 수 없다". 문장 하나가 테스트 하나가 된다.
