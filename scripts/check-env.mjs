@@ -61,6 +61,23 @@ check(
   "pnpm install --frozen-lockfile",
 );
 
+// 커밋 전 검사. 없으면 검증과 커밋 메시지 형식이 내 PC 에서 확인되지 않는다(CI 에서야 걸린다).
+for (const hook of ["pre-commit", "commit-msg"]) {
+  check(
+    existsSync(join(ROOT, ".husky", hook)),
+    `커밋 전 검사 .husky/${hook}`,
+    `템플릿의 scaffold/husky/${hook} 를 .husky/${hook} 로 복사한다`,
+  );
+}
+const hooksPath = (
+  run("git", ["config", "core.hooksPath"]).stdout ?? ""
+).trim();
+check(
+  hooksPath.startsWith(".husky"),
+  `git 훅 경로(${hooksPath || "없음"})`,
+  "pnpm exec husky 를 실행한다(package.json 의 prepare 가 pnpm install 때 실행한다)",
+);
+
 const projects = readProjects();
 check(
   isProjectRef(projects.dev.ref) && projects.dev.name !== "",

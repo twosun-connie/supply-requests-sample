@@ -10,8 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # 비품 신청 개발 규칙
 
-> AI 코딩 도구가 읽는 규칙의 원본이다. 사람이 관리한다. AI는 고치지 않고, 고칠 곳이 보이면 제안만 한다.
-> 위의 Next.js 블록은 `next dev`가 관리한다. 지우거나 고치지 않는다.
+> AI 코딩 도구가 읽는 규칙의 원본이다. 사람이 관리한다. AI는 고치지 않고, 고칠 곳이 보이면 제안만 한다. 위의 Next.js 블록은 `next dev`가 관리한다. 지우거나 고치지 않는다.
 
 ## 1. 이 프로젝트
 
@@ -26,16 +25,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 | 명령 | 실행 | 용도 |
 |---|---|---|
-| `pnpm verify` | AI | 전체 검증: 앱 코드·마이그레이션·확장·문서 검사 → typecheck → lint → 테스트 전체 → build → 알림(규칙 대응표, 기록 현황, 규모). **실패하면 완료가 아니다** |
-| `pnpm verify:quick` | AI | 빠른 검증: 같은 검사 4개 → typecheck → lint → DB 테스트(구조 검사 포함) |
+| `pnpm verify` | AI | 전체 검증: 앱 코드·이름과 주석·마이그레이션·확장·문서 검사 → typecheck → lint → 테스트 전체 → build → 알림(규칙 대응표, 기록 현황, 규모). **실패하면 완료가 아니다** |
+| `pnpm verify:quick` | AI | 빠른 검증: 같은 검사 5개 → typecheck → lint → DB 테스트(구조 검사 포함) |
 | `pnpm test:db`, `pnpm exec vitest run 《파일》` | AI | DB 테스트(마이그레이션을 쓰면 반드시. 실제로 적용해 본다), 테스트 파일 하나 |
 | `pnpm docs:new work 《이름》`, `pnpm docs:new decision 《이름》` | AI | 작업 기록·결정 기록을 양식에서 만든다. 파일을 직접 만들어 날짜를 지어내지 않는다 |
 | `pnpm check:docs`, `pnpm report:docs` | AI | 코드를 바꿨는데 기록이 없거나 양식이 틀리면 실패 / 끝나지 않은 작업·사람이 할 일·정해지지 않은 결정 |
-| `pnpm report:rules`, `pnpm check:deps` | AI | 규칙 대응표(규칙마다 같은 이름의 테스트가 있는지) / 패키지의 취약점·서명. PR을 준비할 때 |
+| `pnpm report:rules`, `pnpm check:deps`, `pnpm check:conventions`, `pnpm check:commit "《메시지》"` | AI | 규칙 대응표(규칙마다 같은 이름의 테스트가 있는지) / 패키지의 취약점·서명(PR을 준비할 때) / 이름·주석 검사 / 커밋 메시지 형식 |
 | `pnpm supabase migration new 《이름》`, `pnpm db:types` | AI | 빈 마이그레이션 파일(시각을 지어내지 않는다) / DB 타입 재생성(사용자가 `db:push`를 끝낸 뒤) |
-| `pnpm db:push`, `pnpm db:push --prod` | **사람** | 개발 / 운영 DB에 마이그레이션 적용 |
+| `pnpm db:push`, `pnpm db:push --prod`, `pnpm check:env` | **사람** | 개발 / 운영 DB에 마이그레이션 적용 / 작업 환경 점검(무언가 안 될 때 먼저 실행한다) |
 | `git push`, 배포, 패키지 설치 | **사람** | AI는 명령과 이유만 제시한다 |
-| `pnpm check:env` | **사람** | 작업 환경 점검. 무언가 안 될 때 먼저 실행한다 |
 
 ## 3. 구조
 
@@ -94,8 +92,12 @@ test/db/                      《테이블》.rls.test.ts. support/ 는 고치�
 - 화면마다 빈·로딩·오류·성공 상태를 만든다. 375px 폭에서 가로 스크롤이 없어야 한다.
 - `"use client"`는 상호작용이 있는 가장 작은 조각에만 붙인다. 클라이언트 컴포넌트에서 DB를 읽거나 바꾸지 않는다.
 
-**TypeScript**
-- `any`, 근거 없는 `as`, `@ts-ignore`를 쓰지 않는다. 모르는 값은 `unknown`으로 받고 좁힌다.
+**이름·주석·커밋** (상세와 예시는 `conventions.md`, `git.md`. 검사가 막는다)
+- 이름: 파일·폴더 kebab-case, 컴포넌트·타입 PascalCase, 함수·변수 camelCase, 상수 UPPER_SNAKE_CASE, 참·거짓은 `is`·`has`·`can`. 조회 `get`·`list`·`count《대상》`, 액션 `동사+대상`, 규칙 `check《규칙》`, 스키마 `《동작》《대상》Schema`, 화면 `《이름》Page`. 줄임말(`req`, `tmp`, `data`)을 쓰지 않는다. DB는 snake_case: 테이블 복수형, 외래 키 `_id`, 시각 `_at`, 참·거짓 `is_`, 인덱스 `《테이블》_《열》_idx`, 정책 `"《테이블》: 《누가 무엇을》"`.
+- 코드 주석: **내보내는 함수·컴포넌트·타입·상수마다 바로 위에 `/** … */`.** 무엇을 하는지 한 문장 + 코드로 알 수 없는 것(왜, 없을 때 돌려주는 값, 단위, 필요한 권한). 이름과 코드를 되풀이하지 않는다. 한국어 평서문. 주석 처리한 코드와 근거 없는 `TODO`를 남기지 않는다(`TODO(《작업 기록》): …`).
+- DB 설명: **테이블·모든 열·enum·함수에 `comment on …`**(뜻, 단위, 허용 값, `null`의 뜻, 누가 채우는지). 마이그레이션 파일은 `《시각》_《동사》_《대상》.sql`, 첫 줄에 `--`로 왜 필요한지.
+- 커밋·PR: Conventional Commits. `종류(범위): 요약`(`feat`·`fix`·`docs`·`refactor`·`test`·`chore` 등, 72자 이하, 마침표 없음, 무엇이 달라지는지) + 빈 줄 + 본문(무엇을·왜) + `Refs: docs/work/《파일》`. 커밋 하나에 목적 하나. 브랜치는 `종류/짧은-이름`. PR 제목은 커밋과 같은 형식, 본문은 `.github/pull_request_template.md`의 절을 채운다.
+- TypeScript: `any`, 근거 없는 `as`, `@ts-ignore`를 쓰지 않는다. 모르는 값은 `unknown`으로 받고 좁힌다.
 
 ## 5. 작업 절차
 
@@ -110,26 +112,23 @@ DB가 바뀌는 작업의 순서(어느 스킬로 시작했든 같다): 마이�
 ## 6. 기능을 넓힐 때
 
 - 규모에는 제한이 없다. 테이블·화면이 늘면 §3의 `features/`로 옮기고 문서를 영역별로 나눈다. `pnpm report:scale`은 알리기만 한다.
-- 새 **종류**의 기능은 정해진 방식으로 더한다: 파일 첨부(`storage`), 메일(`email`), 엑셀(`excel`), DB 함수·트리거(`db-functions`), 예약 작업(`scheduled-jobs`), Edge Function(`edge-functions`), 관리자 API(`admin-api`), 여러 조직(`multi-org`), 실시간(`realtime`).
-- 처음 넣을 때 `.claude/skills/add-extension/recipes/《이름》.md`를 읽고, 사용자에게 알린 뒤 `project.config.json`의 `extensions`에 이름을 더한다. 그 뒤로는 묻지 않는다.
+- 새 **종류**의 기능은 정해진 방식으로 더한다: 파일 첨부(`storage`), 메일(`email`), 엑셀(`excel`), DB 함수·트리거(`db-functions`), 예약 작업(`scheduled-jobs`), Edge Function(`edge-functions`), 관리자 API(`admin-api`), 여러 조직(`multi-org`), 실시간(`realtime`). 처음 넣을 때 `.claude/skills/add-extension/recipes/《이름》.md`를 읽고, 사용자에게 알린 뒤 `project.config.json`의 `extensions`에 이름을 더한다. 그 뒤로는 묻지 않는다.
 - 같은 실수가 되풀이되면 `/retro`. 실수는 "AI가 못한 것"이 아니라 "미리 막는 장치가 없던 것"으로 읽고, 규칙보다 검사를 제안한다. 규칙 파일·검사·훅은 사람이 고친다.
 
 ## 7. 완료 전 확인
 
 ```
-□ §4 를 어긴 곳이 없는가. 참조 구현과 구조·이름이 같은가
-□ 새 테이블: grant + RLS + 작업별 정책 + 역할별 DB 테스트(권한 있음, 권한 없음, 남의 행)
+□ §4 를 어긴 곳이 없는가. 참조 구현과 구조·이름이 같은가. 내보내는 것마다 설명이 있고 사실과 같은가
+□ 새 테이블: grant + RLS + 작업별 정책 + 테이블과 모든 열의 comment on + 역할별 DB 테스트(권한 있음, 권한 없음, 남의 행)
 □ 서버 액션: 권한 없는 사용자와 잘못된 입력에서 { ok: false } 를 돌려주는가
-□ 문서: 스키마를 바꿨으면 docs/schema.md, 권한을 바꿨으면 docs/permissions.md, 새 화면은 docs/screens.md
-□ 기록: 작업 기록의 상태가 「완료」이고 《…》 가 남아 있지 않다. 패키지·확장·destructive-ok·sensitive-ok 에는 결정 기록
+□ 문서와 기록: 스키마는 docs/schema.md, 권한은 docs/permissions.md, 새 화면은 docs/screens.md. 작업 기록의 상태가 「완료」이고 《…》 가 없다. 패키지·확장·destructive-ok·sensitive-ok 에는 결정 기록
 □ pnpm verify 통과. 돌리지 않은 검사를 통과했다고 하지 않는다
 ```
 
 ## 8. 답변 태도
 
 - 근거(파일 경로, 공식 문서, 실행 결과)가 있을 때만 단정한다. 추측은 "추측이지만", 모르는 것은 "확인이 필요하다"고 쓴다.
-- 일부만 보고 "모두", "전체"라고 하지 않는다. 라이브러리의 API는 설치된 버전의 타입 정의나 `node_modules/next/dist/docs/`로 확인한 뒤 쓴다.
-- 주석과 문서는 한국어 평서문("~한다")으로 쓴다. 사용자에게 보이는 화면 문구는 존댓말로 쓴다.
+- 문서는 한국어 평서문("~한다")으로, 사용자에게 보이는 화면 문구는 존댓말로 쓴다. 일부만 보고 "모두", "전체"라고 하지 않는다. 라이브러리의 API는 설치된 버전의 타입 정의나 `node_modules/next/dist/docs/`로 확인한 뒤 쓴다.
 
 ## 9. 금지
 
@@ -148,3 +147,4 @@ DB가 바뀌는 작업의 순서(어느 스킬로 시작했든 같다): 마이�
 | `.claude/rules/ui.md` | 화면, 폼, 목록, 문구 |
 | `.claude/rules/security.md` | 로그인 흐름, 서버 액션·`route.ts`, 검색·정렬, 화면 이동, 개인정보가 든 테이블·열, 패키지. 사람이 하는 설정은 `docs/security-checklist.md` |
 | `.claude/rules/performance.md` | 조회를 여럿 하는 화면, 클라이언트 컴포넌트, 무거운 라이브러리 |
+| `.claude/rules/conventions.md`, `git.md` | 이름을 짓거나 주석·`comment on`을 쓸 때 / 커밋·브랜치·PR |

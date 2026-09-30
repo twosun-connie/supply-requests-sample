@@ -16,10 +16,17 @@ create table public.organizations (id uuid primary key default gen_random_uuid()
 create table public.org_members (
   org_id uuid not null references public.organizations(id), user_id uuid not null references auth.users on delete cascade,
   primary key (org_id, user_id));
-create index org_members_user_idx on public.org_members (user_id);
+comment on table public.organizations is '조직. 한 행 = 조직 하나';
+comment on column public.organizations.id is '조직 ID';
+comment on column public.organizations.name is '조직 이름';
+comment on table public.org_members is '조직의 구성원. 한 행 = 사용자 한 명이 조직 하나에 속함';
+comment on column public.org_members.org_id is '속한 조직(organizations.id)';
+comment on column public.org_members.user_id is '구성원(auth.users.id)';
+create index org_members_user_id_idx on public.org_members (user_id);
 create function private.user_org_ids() returns setof uuid
   language sql security definer set search_path = '' stable
   as $$ select org_id from public.org_members where user_id = (select auth.uid()) $$;
+comment on function private.user_org_ids() is '로그인한 사용자가 속한 조직의 ID 들. 정책이 (select private.user_org_ids()) 로 부른다';
 revoke execute on function private.user_org_ids() from public, anon;
 grant usage on schema private to authenticated;
 grant execute on function private.user_org_ids() to authenticated;
@@ -31,7 +38,14 @@ create table public.requests (
   requester_id uuid not null references auth.users,
   status public.request_status not null default 'submitted',
   updated_at timestamptz not null default now());
-create index requests_org_idx on public.requests (org_id);
+comment on type public.request_status is '신청의 상태. submitted(제출) → approved(승인) 또는 rejected(반려)';
+comment on table public.requests is '신청. 한 행 = 신청 한 건. 조직 안에서만 보인다';
+comment on column public.requests.id is '신청 번호';
+comment on column public.requests.org_id is '신청이 속한 조직(organizations.id)';
+comment on column public.requests.requester_id is '신청한 사람(auth.users.id)';
+comment on column public.requests.status is '상태. 바뀌는 순서는 트리거 requests_status_guard 가 막는다';
+comment on column public.requests.updated_at is '마지막으로 바뀐 시각. 트리거 requests_set_updated_at 이 채운다';
+create index requests_org_id_idx on public.requests (org_id);
 grant select on table public.organizations, public.org_members to authenticated;
 grant select, insert, update on table public.requests to authenticated;
 alter table public.organizations enable row level security;
@@ -60,6 +74,7 @@ begin
   return new;
 end;
 $$;
+comment on function private.guard_request_status() is '상태가 허용한 순서로만 바뀌게 막는다. 트리거 requests_status_guard 가 부른다';
 revoke execute on function private.guard_request_status() from anon, authenticated, public;
 create trigger requests_status_guard before update of status on public.requests
   for each row execute function private.guard_request_status();

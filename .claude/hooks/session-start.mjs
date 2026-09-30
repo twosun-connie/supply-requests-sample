@@ -29,6 +29,11 @@ if (has(".env.example") && !has(".env.local")) {
 if (hasMigrations() && !has("lib/supabase/database.types.ts")) {
   notices.push("DB 타입 생성물이 없다. 사용자가 `pnpm db:push` 를 끝냈으면 `pnpm db:types` 를 실행한다.");
 }
+// 커밋 전 검사가 없으면 검증과 커밋 메시지 형식이 로컬에서 확인되지 않는다(실제 적용에서 두 번 빠뜨렸다).
+const missingHooks = ["pre-commit", "commit-msg"].filter((name) => !has(`.husky/${name}`));
+if (has("node_modules") && missingHooks.length > 0) {
+  notices.push(`커밋 전 검사(.husky/${missingHooks.join(", .husky/")})가 없다. 사용자에게 알린다: \`pnpm exec husky\` 뒤에 템플릿의 scaffold/husky/ 파일을 .husky/ 에 복사한다(\`pnpm check:env\` 가 확인한다).`);
+}
 if (has(".nvmrc")) {
   const wanted = read(".nvmrc").trim().replace(/^v/, "").split(".")[0];
   const actual = process.versions.node.split(".")[0];

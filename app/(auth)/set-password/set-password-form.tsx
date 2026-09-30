@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import type { ActionResult } from "@/lib/action";
 import { setPassword } from "./actions";
 
+/** 비밀번호 정하기 폼. 입력 상태와 실패 문구를 다루므로 클라이언트 컴포넌트다. */
 export function SetPasswordForm({ minLength }: { minLength: number }) {
   const [result, action, pending] = useActionState<
     ActionResult | null,

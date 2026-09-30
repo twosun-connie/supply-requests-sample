@@ -23,4 +23,5 @@ export const createRequestSchema = z.object({
   ),
 });
 
+/** 검증을 통과한 새 신청 입력. */
 export type CreateRequestInput = z.infer<typeof createRequestSchema>;

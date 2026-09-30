@@ -22,9 +22,12 @@ type Policy = {
 type Grant = { table: string; role: string; command: string };
 
 const config = readJson(`${ROOT}project.config.json`) as {
-  db?: { anonReadableTables?: string[] };
+  db?: { anonReadableTables?: string[]; namingExceptions?: string[] };
 } | null;
 const anonReadable = new Set(config?.db?.anonReadableTables ?? []);
+/** 이름 규칙의 예외. 이미 적용해 한 번에 바꿀 수 없는 이름을 project.config.json 에 적는다(열은 《테이블》.《열》, 인덱스·정책은 이름 그대로). */
+const namingExceptions = new Set(config?.db?.namingExceptions ?? []);
+const SNAKE = /^[a-z][a-z0-9_]*$/;
 
 let db: TestDb;
 let tables: string[] = [];
@@ -258,6 +261,208 @@ describe("함수", () => {
        where n.nspname = 'public' and p.prosrc ~ 'user_metadata' order by 1`,
     );
     expect(unsafe.map((row) => row.name)).toEqual([]);
+  });
+});
+
+describe("이름과 설명", () => {
+  type Column = {
+    table: string;
+    name: string;
+    type: string;
+    comment: string | null;
+  };
+  let columns: Column[] = [];
+
+  beforeAll(async () => {
+    columns = (
+      await db.admin(
+        `select c.relname as table_name, a.attname as column_name,
+                format_type(a.atttypid, a.atttypmod) as type, col_description(c.oid, a.attnum) as comment
+         from pg_class c join pg_namespace n on n.oid = c.relnamespace
+         join pg_attribute a on a.attrelid = c.oid
+         where n.nspname = 'public' and c.relkind in ('r', 'p') and a.attnum > 0 and not a.attisdropped
+         order by c.relname, a.attnum`,
+      )
+    ).map((row) => ({
+      table: String(row.table_name),
+      name: String(row.column_name),
+      type: String(row.type),
+      comment: row.comment === null ? null : String(row.comment),
+    }));
+  });
+  const allowed = (name: string) => namingExceptions.has(name);
+  const columnKey = (column: Column) => `${column.table}.${column.name}`;
+
+  it("테이블·열·enum 타입·함수 이름이 snake_case 다", async () => {
+    const others = await db.admin(
+      `select t.typname as name from pg_type t join pg_namespace n on n.oid = t.typnamespace
+       where n.nspname = 'public' and t.typtype = 'e'
+       union all
+       select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+       where n.nspname in ('public', 'private')
+         and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e')`,
+    );
+    const bad = [
+      ...tables.filter((name) => !SNAKE.test(name)),
+      ...columns.filter((column) => !SNAKE.test(column.name)).map(columnKey),
+      ...others
+        .map((row) => String(row.name))
+        .filter((name) => !SNAKE.test(name)),
+    ].filter((name) => !allowed(name));
+    expect(
+      bad,
+      "소문자·숫자·밑줄만 쓴다(requests, requester_id). 따옴표로 감싼 대문자 이름을 만들지 않는다",
+    ).toEqual([]);
+  });
+
+  it("테이블마다 설명이 있다(comment on table)", async () => {
+    const missing = await db.admin(
+      `select c.relname as name from pg_class c join pg_namespace n on n.oid = c.relnamespace
+       where n.nspname = 'public' and c.relkind in ('r', 'p')
+         and coalesce(btrim(obj_description(c.oid, 'pg_class')), '') = '' order by 1`,
+    );
+    expect(
+      missing.map((row) => row.name),
+      "comment on table public.《테이블》 is '《무엇을 담는가. 한 행이 무엇인가. 근거 문서》'; 를 더한다. 이미 적용한 테이블이면 새 마이그레이션(comment_《테이블》)에 쓴다",
+    ).toEqual([]);
+  });
+
+  it("열마다 설명이 있다(comment on column)", () => {
+    const missing = columns
+      .filter(
+        (column) =>
+          column.comment === null ||
+          column.comment.trim() === "" ||
+          column.comment.trim() === column.name,
+      )
+      .map(columnKey);
+    expect(
+      missing,
+      "comment on column public.《테이블》.《열》 is '《뜻. 단위·허용 값·누가 채우는지·비어 있으면 무슨 뜻인지》'; 를 더한다. id·created_at 도 적는다",
+    ).toEqual([]);
+  });
+
+  it("enum 타입마다 설명이 있고 값은 소문자다", async () => {
+    const types = await db.admin(
+      `select t.typname as name, obj_description(t.oid, 'pg_type') as comment,
+              array(select e.enumlabel::text from pg_enum e where e.enumtypid = t.oid order by e.enumsortorder) as labels
+       from pg_type t join pg_namespace n on n.oid = t.typnamespace
+       where n.nspname = 'public' and t.typtype = 'e' order by 1`,
+    );
+    const missing = types
+      .filter((row) => String(row.comment ?? "").trim() === "")
+      .map((row) => String(row.name));
+    expect(
+      missing,
+      "comment on type public.《타입》 is '《무엇의 값인가. 값마다의 뜻》'; 를 더한다",
+    ).toEqual([]);
+    const badLabels = types.flatMap((row) =>
+      (row.labels as string[])
+        .filter((label) => !/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)?$/.test(label))
+        .map((label) => `${String(row.name)}: ${label}`),
+    );
+    expect(
+      badLabels,
+      "enum 값은 소문자 snake_case 로 쓴다(submitted, in_review). 권한 코드는 《대상》.《동작》(requests.approve)",
+    ).toEqual([]);
+  });
+
+  it("함수마다 설명이 있다(comment on function)", async () => {
+    const missing = await db.admin(
+      `select n.nspname || '.' || p.proname as name from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+       where n.nspname in ('public', 'private')
+         and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e')
+         and coalesce(btrim(obj_description(p.oid, 'pg_proc')), '') = '' order by 1`,
+    );
+    expect(
+      missing.map((row) => row.name),
+      "comment on function 《스키마》.《함수》 is '《무엇을 하는가. 누가 부르는가(정책, 트리거, 훅)》'; 를 더한다",
+    ).toEqual([]);
+  });
+
+  it("시각 열은 _at 으로 끝난다", () => {
+    const bad = columns
+      .filter(
+        (column) => /^timestamp/.test(column.type) && !/_at$/.test(column.name),
+      )
+      .map(columnKey)
+      .filter((name) => !allowed(name));
+    expect(
+      bad,
+      "created_at, approved_at 처럼 짓는다. 이미 적용한 열이면 project.config.json 의 db.namingExceptions 에 적고 결정 기록을 남긴다",
+    ).toEqual([]);
+  });
+
+  it("참·거짓 열은 is_·has_·can_ 으로 시작한다", () => {
+    const bad = columns
+      .filter(
+        (column) =>
+          column.type === "boolean" && !/^(is|has|can)_/.test(column.name),
+      )
+      .map(columnKey)
+      .filter((name) => !allowed(name));
+    expect(
+      bad,
+      "is_active, has_attachment 처럼 짓는다. 이미 적용한 열이면 project.config.json 의 db.namingExceptions 에 적고 결정 기록을 남긴다",
+    ).toEqual([]);
+  });
+
+  it("다른 테이블을 가리키는 열(외래 키)은 _id 로 끝난다", async () => {
+    const keys = await db.admin(
+      `select c.relname as table_name, a.attname as column_name
+       from pg_constraint k join pg_class c on c.oid = k.conrelid join pg_namespace n on n.oid = c.relnamespace
+       join pg_attribute a on a.attrelid = c.oid and a.attnum = k.conkey[1]
+       where n.nspname = 'public' and k.contype = 'f' and array_length(k.conkey, 1) = 1 order by 1, 2`,
+    );
+    const bad = keys
+      .map((row) => ({
+        table: String(row.table_name),
+        name: String(row.column_name),
+      }))
+      .filter((key) => key.name !== "id" && !/_id$/.test(key.name))
+      .map((key) => `${key.table}.${key.name}`)
+      .filter((name) => !allowed(name));
+    expect(
+      bad,
+      "requester_id, item_id 처럼 《가리키는 대상》_id 로 짓는다",
+    ).toEqual([]);
+  });
+
+  it("인덱스 이름은 《테이블》_《열 또는 뜻》_idx 다", async () => {
+    const indexes = await db.admin(
+      `select c.relname as table_name, i.relname as index_name
+       from pg_index x join pg_class i on i.oid = x.indexrelid join pg_class c on c.oid = x.indrelid
+       join pg_namespace n on n.oid = c.relnamespace
+       where n.nspname = 'public'
+         and not exists (select 1 from pg_constraint k where k.conindid = x.indexrelid) order by 1, 2`,
+    );
+    const bad = indexes
+      .map((row) => ({
+        table: String(row.table_name),
+        name: String(row.index_name),
+      }))
+      .filter(
+        (index) =>
+          !index.name.startsWith(`${index.table}_`) ||
+          !/_idx$/.test(index.name),
+      )
+      .map((index) => index.name)
+      .filter((name) => !allowed(name));
+    expect(
+      bad,
+      "create index requests_requester_id_idx on public.requests (requester_id); 처럼 짓는다. 기본 키·unique 제약의 이름은 Postgres 가 짓는 대로 둔다",
+    ).toEqual([]);
+  });
+
+  it("정책 이름은 「《테이블》: 《누가 무엇을》」 이다", () => {
+    const bad = tablePolicies
+      .filter((policy) => !policy.name.startsWith(`${policy.table}: `))
+      .map((policy) => policy.name)
+      .filter((name) => !allowed(name));
+    expect(
+      bad,
+      'create policy "requests: read own or approve" on public.requests … 처럼 짓는다. 고치려면 drop policy if exists 뒤에 새 이름으로 만든다',
+    ).toEqual([]);
   });
 });
 

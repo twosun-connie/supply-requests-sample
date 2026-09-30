@@ -23,7 +23,7 @@ allowed-tools: Bash(pnpm check:extensions) Bash(pnpm verify) Bash(pnpm test)
 | `multi-org` | 여러 조직 | 조직 사이에 데이터가 섞이면 안 된다 |
 | `realtime` | 실시간 갱신 | 새로 고침이나 주기적 재조회로 충분한가 |
 
-1. **방식을 읽는다.** 이 폴더의 `recipes/$ARGUMENTS.md` 전체와 `.claude/rules/database.md`.
+1. **방식을 읽는다.** 이 폴더의 `recipes/$ARGUMENTS.md` 전체와 `.claude/rules/database.md`. 테이블·열·함수를 만드는 확장이면 `.claude/rules/conventions.md` §2·§4도 읽는다(이름, `comment on`. 함수에도 설명을 쓴다).
 2. **공식 문서로 확인한다.** 방식 파일의 「출처」를 열어 지금도 맞는지 본다. 방식 파일에 「확인 필요」로 적힌 것은 반드시 확인한다. 다르면 공식 문서를 따르고 다른 점을 보고한다.
 3. **계획을 보여 준다.** 승인을 기다린다.
    - 왜 이 확장이 필요한가. 더 단순한 방법은 없는가

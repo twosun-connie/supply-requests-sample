@@ -13,6 +13,7 @@ export const ROLE_LABEL: Record<Role, string> = {
   member: "구성원",
 };
 
+/** 사이드바 메뉴 한 줄. */
 export type NavItem = {
   href: `/${string}`;
   label: string;

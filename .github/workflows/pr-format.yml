@@ -1,0 +1,29 @@
+# .github/workflows/pr-format.yml 로 저장한다. PR 의 제목(커밋과 같은 형식)과 본문(양식의 절)을 확인한다.
+# 제목·본문을 고칠 때마다 다시 돈다. 설치가 필요 없어 몇 초면 끝난다. 브랜치 보호에서 이 검사도 필수로 건다.
+# 합칠 때는 Squash and merge 를 쓴다. PR 제목이 main 의 커밋 제목이 된다.
+name: pr-format
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+concurrency:
+  group: pr-format-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  pr-format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: PR 제목과 본문의 형식
+        # 제목과 본문은 밖에서 온 글이다. 명령 줄에 끼워 넣지 않고 환경 변수로 넘긴다.
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: node scripts/check-commit.mjs --pr

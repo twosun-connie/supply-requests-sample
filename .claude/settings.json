@@ -13,6 +13,8 @@
       "Bash(pnpm check:migrations)",
       "Bash(pnpm check:extensions)",
       "Bash(pnpm check:deps)",
+      "Bash(pnpm check:conventions)",
+      "Bash(pnpm check:commit *)",
       "Bash(pnpm check:docs)",
       "Bash(pnpm check:docs --final)",
       "Bash(pnpm docs:new *)",

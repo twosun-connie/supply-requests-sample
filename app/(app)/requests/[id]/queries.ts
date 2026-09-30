@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 
 type RequestStatus = Database["public"]["Enums"]["request_status"];
 
+/** 신청 상세 화면에 보이는 값. ID 와 이름을 따로 둔다(자기 신청인지는 requesterId 로 가린다). */
 export type RequestDetail = {
   id: number;
   itemName: string;
@@ -20,6 +21,7 @@ export type RequestDetail = {
   updatedAt: string;
 };
 
+/** 상태 변경 이력의 한 줄(승인 또는 반려). 반려면 note 에 사유가 있다. */
 export type RequestEvent = {
   id: number;
   actorName: string;

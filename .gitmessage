@@ -1,0 +1,17 @@
+
+# .gitmessage 로 저장한다. `git config commit.template .gitmessage` 를 한 번 실행하면 커밋할 때 이 안내가 뜬다.
+# # 으로 시작하는 줄은 메시지에 들어가지 않는다. 형식은 .husky/commit-msg 가 확인한다.
+#
+# 종류(범위): 요약              ← 첫 줄. 72자 이하(50자 안쪽 권장), 마침표 없음
+#
+# 본문: 무엇을, 왜 바꿨는가.    ← 둘째 줄은 비운다. 한 줄 100자 이하. 어떻게는 코드가 말한다
+#
+# Refs: docs/work/《작업 기록 파일》
+# BREAKING CHANGE: 《함께 바꿔야 하는 것》
+#
+# 종류: feat 새 기능 · fix 결함 수정 · docs 문서 · style 모양 · refactor 구조 · perf 성능
+#       test 테스트 · build 의존성 · ci CI 설정 · chore 잡일 · revert 되돌리기
+# 범위: 화면·영역 이름(requests, admin-users, auth, db, ui, deps). 여러 곳이면 생략
+#
+# 예: feat(requests): 신청 상세에 승인·반려 버튼 추가
+#     fix(auth): 공개 경로를 경로 단위로 판정

@@ -13,8 +13,8 @@ model: inherit
 
 1. `git status`와 `git diff`로 변경을 확인한다. 커밋된 변경은 `git diff 《기준 브랜치》...HEAD`.
 2. 이번 작업의 기록(`docs/work/`에서 바뀐 파일)을 읽는다. 없으면 그것이 첫 번째 「매우 높음」이다.
-3. `AGENTS.md`, 바뀐 경로에 해당하는 `.claude/rules/*.md`, 관련된 `docs/rules.md`·`docs/screens.md`를 읽는다. `.claude/skills/`에 `react-best-practices`가 있으면 그 기준도 읽는다.
-4. 아래 기준으로 본다. 기준에 없는 것(취향, 범위 밖의 개선, 이름 바꾸기)은 보고하지 않는다.
+3. `AGENTS.md`, `.claude/rules/conventions.md`, 바뀐 경로에 해당하는 `.claude/rules/*.md`, 관련된 `docs/rules.md`·`docs/screens.md`를 읽는다. `.claude/skills/`에 `react-best-practices`가 있으면 그 기준도 읽는다.
+4. 아래 기준으로 본다. 기준에 없는 것(취향, 범위 밖의 개선)은 보고하지 않는다. 이름과 주석은 형식이 아니라 **내용**을 본다(형식은 `pnpm check:conventions`와 구조 검사가 이미 봤다).
 
 ## 기준
 
@@ -23,7 +23,15 @@ model: inherit
 | 매우 높음 | 머지 전에 고친다 | 문서(`docs/rules.md`의 규칙, 상태 흐름, `docs/screens.md`)와 다른 동작. 작업 기록이 없거나 기록과 변경이 다름(기록에 없는 파일을 바꿈, 했다고 적었는데 없음, 돌리지 않은 검증을 통과했다고 적음). 기다림(`performance.md` §1): 줄줄이 이어진 독립 조회, 반복문 안의 조회. 요청하지 않은 범위의 변경 |
 | 높음 | 이번 PR에서 고친다 | 브라우저로 가는 코드(`performance.md` §2): 넓게 붙인 `"use client"`, 클라이언트에서 하는 변환. 참조 구현(`app/(app)/admin/users/`)과 다른 구조·이름. 빈·로딩·오류 상태 누락. 규칙 문장과 이름이 다른 테스트, 규칙에 테스트 없음 |
 | 중간 | 고치거나 「하지 않은 것」에 적는다 | 인덱스 없는 검색·정렬 열. 같은 조회의 반복. 두 번 만든 도우미(`lib/`, `components/`에 이미 있음). 되돌리기 어려운 선택인데 결정 기록이 없음 |
-| 낮음 | 최대 3건 | 미리 넣은 `useMemo`·`useCallback`. 읽기 어려운 이름. 쓰이지 않는 코드 |
+| 낮음 | 최대 3건 | 미리 넣은 `useMemo`·`useCallback`. 쓰이지 않는 코드 |
+
+이름과 주석(`conventions.md`)은 아래를 본다. 바뀐 줄만 본다.
+
+| 심각도 | 찾을 것 |
+|---|---|
+| 높음 | **사실과 다른 설명**: 코드가 하는 일과 다른 `/** … */`·`comment on`(고친 코드 위에 남은 옛 주석 포함). 뜻과 다른 이름(`get`인데 바꾼다, `is`인데 참·거짓이 아니다, `《대상》Id`에 이메일이 들어간다) |
+| 중간 | 이름이나 코드를 되풀이할 뿐인 설명(`/** 사용자 목록 */` 위의 `listUsers`, `comment on column … id is 'id'`). `comment on`에 단위·허용 값·`null`의 뜻이 빠짐. 같은 것을 다른 이름으로 부름(`user`와 `member`). 줄임말 |
+| 낮음 | 「왜」가 없는 함수 안 주석 |
 
 ## 근거
 

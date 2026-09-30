@@ -6,8 +6,10 @@ import { createClient } from "@/lib/supabase/server";
 
 /** 권한 코드. DB 의 app_permission enum 에서 온다. 코드는 역할 이름이 아니라 이 값을 검사한다. */
 export type Permission = Database["public"]["Enums"]["app_permission"];
+/** 역할 이름. DB 의 app_role enum 에서 온다. 화면에 보이는 이름은 lib/navigation.ts 의 ROLE_LABEL 이다. */
 export type Role = Database["public"]["Enums"]["app_role"];
 
+/** 로그인한 사용자. 토큰의 클레임에서 읽은 값이다. 토큰에 email 이 없으면 null 이다. */
 export type AuthUser = {
   id: string;
   email: string | null;
