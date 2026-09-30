@@ -89,10 +89,10 @@ for (const path of files) {
       "예제 이미지·문구를 지우고 우리 내용으로 채운다(/add-block 6단계)",
     );
   }
-  if (inApp && shown !== "app/(app)/layout.tsx" && /<main\b/.test(text)) {
+  if (inApp && /<main\b/.test(text)) {
     add(
       path,
-      "화면이 <main> 을 만든다. app/(app)/layout.tsx 가 이미 <main> 과 본문 폭·여백을 그린다(겹치면 여백이 두 번 들어간다).",
+      "화면이 <main> 을 만든다. app/(app)/layout.tsx 의 SidebarInset 이 이미 <main> 이고 본문 폭·여백도 거기서 정한다(겹치면 <main> 이 둘이 되고 여백이 두 번 들어간다).",
       "<main> 을 <div> 나 조각(<>…</>)으로 바꾸고 폭·여백 클래스를 지운다. loading.tsx, error.tsx 도 같다",
     );
   }

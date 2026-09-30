@@ -29,9 +29,10 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
         <AppTopbar>
           <UserMenu email={user.email} roleLabel={ROLE_LABEL[user.role]} />
         </AppTopbar>
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
+        {/* SidebarInset 이 main 요소다. 여기서 main 을 또 만들지 않는다. */}
+        <div className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
           {children}
-        </main>
+        </div>
         <footer className="border-t px-4 py-3 text-xs text-muted-foreground sm:px-6">
           © {new Date().getFullYear()} {SITE_NAME}
         </footer>

@@ -46,6 +46,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
 
 /** 주소의 마지막 조각에 붙이는 이름. 빵부스러기(breadcrumb)가 쓴다. */
 export const SEGMENT_LABEL: Record<string, string> = {
-  new: "새로 만들기",
+  new: "새 신청",
   edit: "고치기",
 };
