@@ -24,9 +24,9 @@ allowed-tools: Bash(pnpm verify) Bash(pnpm verify:quick) Bash(pnpm exec vitest r
 |---|---|---|
 | 1 | `schema.ts` | 폼이 있을 때. Zod. 문구는 존댓말 |
 | 2 | `rules.ts`, `rules.test.ts` | 상태 전이·계산이 있을 때만. 규칙 문장마다 테스트. 없으면 파일을 만들지 않는다 |
-| 3 | `queries.ts` | `import "server-only"`, 필요한 열만, 쪽 나누기. 검색어는 `toContainsPattern()`, 정렬은 허용 목록(`security.md` §3) |
+| 3 | `queries.ts` | `import "server-only"`, 필요한 열만, 쪽 나누기. 행 하나를 읽는 조회는 없으면 `null`을 돌려준다(예외를 던지지 않는다). 검색어는 `toContainsPattern()`, 정렬은 허용 목록(`security.md` §3) |
 | 4 | `actions.ts` | `data-access.md` §4의 순서. 반환은 `ActionResult` |
-| 5 | `page.tsx`, `loading.tsx`, `error.tsx` | 조회보다 먼저 `requireUser()` 또는 `requirePermission()`. 주소에 ID를 받으면 행이 없을 때 `notFound()`. `<main>` 없이 `PageHeader`로 시작, 빈 상태는 `EmptyState`(`docs/design.md` 「화면 뼈대」) |
+| 5 | `page.tsx`, `loading.tsx`, `error.tsx` | 조회보다 먼저 `requireUser()` 또는 `requirePermission()`. 주소에 ID를 받으면 행이 없을 때 `notFound()`. `<main>` 없이 `PageHeader`로 시작, 빈 상태는 `EmptyState`, `loading.tsx`는 `PageSkeleton`, `error.tsx`는 `ErrorState`(`docs/design.md` 「화면 뼈대」「상태」) |
 | 5-1 | `lib/navigation.ts` | 최상위 화면이면 `NAV_ITEMS`에 한 줄(`icon`은 lucide-react, `group`은 사이드바 묶음 이름). 하위 화면의 주소 조각은 `SEGMENT_LABEL`에. `docs/screens.md`의 순서대로 |
 | 6 | `《이름》-form.tsx` | 상호작용이 있는 조각만 `"use client"` |
 

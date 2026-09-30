@@ -25,7 +25,7 @@
 ## 상태
 
 - 빈 상태: `components/empty-state.tsx`. 제목("아직 신청이 없습니다") + 다음에 할 일 한 문장 + 필요하면 버튼.
-- 로딩: `loading.tsx`. 오류: `error.tsx`에 다시 시도 버튼.
+- 로딩: `loading.tsx`가 `PageSkeleton`(`components/page-skeleton.tsx`). 오류: `error.tsx`가 `ErrorState`(`components/error-state.tsx`, 다시 시도 버튼). 없음: `notFound()` → `app/(app)/not-found.tsx`.
 - 상태 값은 `Badge`로: 《제출 = outline, 승인 = default, 반려 = destructive》.
 
 ## 화면 공통 규칙
