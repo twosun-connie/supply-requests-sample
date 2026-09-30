@@ -29,7 +29,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
         <AppTopbar>
           <UserMenu email={user.email} roleLabel={ROLE_LABEL[user.role]} />
         </AppTopbar>
-        {/* SidebarInset 이 <main> 이다. 여기서 <main> 을 또 만들지 않는다. */}
+        {/* SidebarInset 이 main 요소다. 여기서 main 을 또 만들지 않는다. */}
         <div className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
           {children}
         </div>
