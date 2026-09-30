@@ -24,7 +24,10 @@ export function AppTopbar({ children }: { children: ReactNode }) {
     <header className="sticky top-0 z-40 border-b bg-card">
       <div className="flex h-14 items-center justify-between gap-4 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
-          <SidebarTrigger />
+          <SidebarTrigger
+            aria-label="사이드바 여닫기"
+            title="사이드바 여닫기"
+          />
           <Separator
             orientation="vertical"
             className="hidden h-4! data-vertical:self-center sm:block"
