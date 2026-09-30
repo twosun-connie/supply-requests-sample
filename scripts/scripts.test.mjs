@@ -382,6 +382,26 @@ export async function save(_previous, formData) {
       "export default async function Page() { await requireUser(); return <main><h1>메모</h1></main>; }",
       /PageHeader 로 시작하지 않는다/,
     ],
+    "문구만 띄우는 loading.tsx": [
+      "app/(app)/memos/loading.tsx",
+      "export default function Loading() { return <p>불러오는 중입니다.</p>; }",
+      /자리 표시\(Skeleton\)를 쓰지 않는다/,
+    ],
+    "공용 오류 상태를 쓰지 않는 error.tsx": [
+      "app/(app)/memos/error.tsx",
+      '"use client";\nexport default function ErrorView() { return <p>오류</p>; }',
+      /공용 오류 상태를 쓰지 않는다/,
+    ],
+    "<main> 을 만드는 화면 조각": [
+      "app/(app)/memos/error.tsx",
+      '"use client";\nexport default function ErrorView() { return <main className="p-4">오류</main>; }',
+      /화면이 <main> 을 만든다/,
+    ],
+    "없는 행에 예외를 던지는 조회": [
+      "app/(app)/memos/[id]/queries.ts",
+      'import "server-only";\nexport async function getMemo() { const result = { data: null, error: null }; if (result.data === null) throw new Error("없다"); return result.data; }',
+      /조회 결과가 없을 때 예외를 던진다/,
+    ],
     "블록에 딸려 온 예제 페이지": [
       "app/login-page-01/page.tsx",
       "export default function Page() { return null; }",

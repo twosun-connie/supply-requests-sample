@@ -36,11 +36,9 @@ export default async function RequestDetailPage({
   const requestId = Number(resolvedParams.id);
   if (isNaN(requestId)) notFound();
 
-  const { request, events } = await getRequestDetail(
-    actor.id,
-    requestId,
-    canApprove,
-  );
+  const detail = await getRequestDetail(actor.id, requestId, canApprove);
+  if (detail === null) notFound();
+  const { request, events } = detail;
 
   const isOwnRequest = request.requesterId === actor.id;
   const canShowApprovalButton =

@@ -89,6 +89,34 @@ for (const path of files) {
       "예제 이미지·문구를 지우고 우리 내용으로 채운다(/add-block 6단계)",
     );
   }
+  if (inApp && shown !== "app/(app)/layout.tsx" && /<main\b/.test(text)) {
+    add(
+      path,
+      "화면이 <main> 을 만든다. app/(app)/layout.tsx 가 이미 <main> 과 본문 폭·여백을 그린다(겹치면 여백이 두 번 들어간다).",
+      "<main> 을 <div> 나 조각(<>…</>)으로 바꾸고 폭·여백 클래스를 지운다. loading.tsx, error.tsx 도 같다",
+    );
+  }
+  if (name === "loading.tsx" && inApp && !/Skeleton\b/.test(text)) {
+    add(
+      path,
+      "loading.tsx 가 자리 표시(Skeleton)를 쓰지 않는다. 문구만 띄우면 화면이 바뀔 때 배치가 흔들린다.",
+      "components/page-skeleton.tsx 의 PageSkeleton 을 돌려준다(return <PageSkeleton />)",
+    );
+  }
+  if (name === "error.tsx" && inApp && !/<ErrorState\b/.test(text)) {
+    add(
+      path,
+      "error.tsx 가 공용 오류 상태를 쓰지 않는다. 화면마다 오류 모양이 달라진다.",
+      "components/error-state.tsx 의 ErrorState 를 돌려준다(title 과 reset 을 넘긴다)",
+    );
+  }
+  if (name === "queries.ts" && /===\s*null\s*\)\s*\{?\s*throw\b/.test(text)) {
+    add(
+      path,
+      "조회 결과가 없을 때 예외를 던진다. 없는 행이 「일시적인 오류」 화면(error.tsx)으로 보인다.",
+      "행이 없으면 null 을 돌려주고, page.tsx 가 notFound() 를 부른다. 예외는 조회 자체가 실패했을 때(error !== null)만 던진다",
+    );
+  }
   if (name === "page.tsx" && inApp && !/<PageHeader\b/.test(text)) {
     add(
       path,

@@ -35,8 +35,9 @@ paths:
 | 상태 | 만드는 것 |
 |---|---|
 | 빈 | 왜 비었는지와 다음에 할 일을 한 문장으로("아직 신청이 없습니다. 「새 신청」을 눌러 시작하세요.") |
-| 로딩 | 라우트 폴더의 `loading.tsx` |
-| 오류 | 라우트 폴더의 `error.tsx`. 다시 시도 버튼 |
+| 로딩 | 라우트 폴더의 `loading.tsx`. `PageSkeleton`(`components/page-skeleton.tsx`)을 돌려준다. 문구만 띄우지 않는다 |
+| 오류 | 라우트 폴더의 `error.tsx`. `ErrorState`(`components/error-state.tsx`)에 제목과 `reset`을 넘긴다. 예외 문구를 보여 주지 않는다 |
+| 없음 | 행이 없거나 볼 수 없으면 조회는 `null`을 돌려주고 `page.tsx`가 `notFound()`. `app/(app)/not-found.tsx`가 그린다. 조회가 예외를 던지면 「오류」로 보인다 |
 | 성공 | 바뀐 결과가 화면에 보인다. 필요하면 한 줄 알림 |
 
 주소에 ID를 받는 페이지는 조회 결과가 없으면 `notFound()`를 부른다. 없는 행과 정책이 막은 행은 둘 다 0행으로 와서 구분되지 않는다. 본문에 "찾을 수 없습니다"를 그리면 응답이 200이다. `pnpm check:app`이 막는다.

@@ -37,13 +37,13 @@ export type RequestEvent = {
  * @param userId 로그인한 사용자의 id
  * @param requestId 신청 ID
  * @param canViewAll requests.approve 권한이 있는지(전체 신청을 본다)
- * @returns 신청 상세와 이력. 읽지 못하면 예외(error.tsx 가 받는다)
+ * @returns 신청 상세와 이력. 없거나 볼 수 없는 신청이면 null(page.tsx 가 notFound() 를 부른다). 읽지 못하면 예외(error.tsx 가 받는다)
  */
 export async function getRequestDetail(
   userId: string,
   requestId: number,
   canViewAll: boolean,
-): Promise<{ request: RequestDetail; events: RequestEvent[] }> {
+): Promise<{ request: RequestDetail; events: RequestEvent[] } | null> {
   const supabase = await createClient();
 
   // 신청 조회
@@ -63,7 +63,7 @@ export async function getRequestDetail(
   if (requestResult.error !== null)
     throw new Error("신청을 읽지 못했다", { cause: requestResult.error });
 
-  if (requestResult.data === null) throw new Error("신청을 찾을 수 없습니다");
+  if (requestResult.data === null) return null;
 
   // 품목 이름, 신청자 이름 등을 함께 읽는다
   const itemPromise = supabase
