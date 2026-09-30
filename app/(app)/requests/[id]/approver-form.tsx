@@ -5,6 +5,10 @@ import { approveRequest, rejectRequest } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
+/**
+ * 승인·반려 폼. 반려를 누르면 사유 입력 칸이 열린다.
+ * 버튼을 보일지는 page.tsx 가 정한다(requests.approve 권한, 제출 상태, 남의 신청). 실제로 막는 것은 서버 액션이다.
+ */
 export function ApproverForm({ requestId }: { requestId: number }) {
   const [approveState, approveAction, approveIsLoading] = useActionState(
     approveRequest,

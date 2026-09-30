@@ -1,6 +1,7 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
 
+/** 새 신청에서 고를 수 있는 품목. 단위(unit)는 품목 이름 옆에 보여 준다. */
 export type SelectableItem = {
   id: number;
   name: string;

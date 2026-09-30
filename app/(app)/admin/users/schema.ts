@@ -7,4 +7,5 @@ export const changeRoleSchema = z.object({
   role: z.enum(Constants.public.Enums.app_role, "역할을 다시 선택해 주세요."),
 });
 
+/** 검증을 통과한 역할 변경 입력. */
 export type ChangeRoleInput = z.infer<typeof changeRoleSchema>;

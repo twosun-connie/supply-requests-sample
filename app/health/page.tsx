@@ -17,6 +17,7 @@ const ENV_LABEL: Record<string, string> = {
   development: "개발",
 };
 
+/** 연결 확인 화면. 배포가 어느 Supabase 프로젝트·커밋·리전으로 도는지 보여 준다. 로그인 없이 열리므로 키 값은 보여 주지 않는다. */
 export default function HealthPage() {
   const vercelEnv = process.env.VERCEL_ENV ?? "";
   const environment = ENV_LABEL[vercelEnv] ?? "내 PC";

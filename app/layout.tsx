@@ -17,6 +17,7 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
 };
 
+/** 모든 화면의 바깥 틀. 언어(ko), 글꼴, 테마 변수, 툴팁 제공자를 둔다. */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ko" className={`${notoSansKr.variable} h-full antialiased`}>

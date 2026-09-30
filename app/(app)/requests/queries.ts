@@ -2,10 +2,12 @@ import "server-only";
 import type { Database } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 
+/** 한 쪽에 보이는 행 수. 화면의 쪽 계산과 조회가 같이 쓴다. */
 export const PAGE_SIZE = 20;
 
 type RequestStatus = Database["public"]["Enums"]["request_status"];
 
+/** 신청 목록의 한 행. 품목은 이름으로 바꿔 돌려준다. */
 export type RequestRow = {
   id: number;
   itemName: string;

@@ -1,6 +1,7 @@
 /** 서버 액션의 반환 형태. 화면에 필요한 최소한만 돌려준다. DB 행이나 오류 객체를 그대로 넘기지 않는다. */
 export type ActionResult = { ok: true } | { ok: false; message: string };
 
+/** 성공 응답. 바뀐 값은 돌려주지 않는다. 화면은 revalidatePath 뒤에 다시 조회한 값을 본다. */
 export const OK: ActionResult = { ok: true };
 
 /** 권한이 없을 때의 응답. RLS 는 권한이 없으면 오류 없이 0행을 돌려주므로, 이 응답은 서버 액션이 만든다. */

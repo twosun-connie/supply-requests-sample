@@ -2,8 +2,10 @@ import "server-only";
 import type { Role } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
+/** 한 쪽에 보이는 행 수. 화면의 쪽 계산과 조회가 같이 쓴다. */
 export const PAGE_SIZE = 20;
 
+/** 사용자 목록의 한 행. DB 의 이름(full_name)을 화면의 이름(fullName)으로 바꾼 것이다. */
 export type UserRow = {
   id: string;
   fullName: string;

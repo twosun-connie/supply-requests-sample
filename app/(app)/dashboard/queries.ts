@@ -4,6 +4,7 @@ import type { Database } from "@/lib/supabase/database.types";
 
 type RequestStatus = Database["public"]["Enums"]["request_status"];
 
+/** 상태별 신청 건수. 키는 request_status 의 값이다. */
 export type RequestCounts = Record<RequestStatus, number>;
 
 /**
