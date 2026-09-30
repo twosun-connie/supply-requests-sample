@@ -11,6 +11,7 @@
 | 원본 문서(`docs/`)가 없거나 비어 있다 | `/write-docs` |
 | 테이블·열·권한을 더한다 | `/new-migration` |
 | 화면을 만든다 | `/new-screen` |
+| shadcn studio 블록을 넣는다 | `/add-block` |
 | 새 종류의 기능을 넣는다(`AGENTS.md` §6) | `/add-extension` |
 | 작업을 끝내고 커밋·PR을 준비한다 | `/pr-ready` |
 | 같은 실수가 되풀이된다 | `/retro` |

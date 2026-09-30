@@ -23,7 +23,11 @@ const sources = appFiles().map((path) => ({
   path: show(path),
   lines: readText(path).split("\n").length,
 }));
-const largest = [...sources].sort((a, b) => b.lines - a.lines)[0];
+// shadcn CLI 가 만든 파일(components/ui/, hooks/use-mobile.ts)은 우리가 나눌 수 없으므로 크기를 재지 않는다.
+const GENERATED = /^(components\/ui\/|hooks\/use-mobile\.ts$)/;
+const largest = sources
+  .filter((source) => !GENERATED.test(source.path))
+  .sort((a, b) => b.lines - a.lines)[0];
 const config = readConfig();
 
 const tables = count(/\bcreate\s+table\s+(?:if\s+not\s+exists\s+)?public\./gi);

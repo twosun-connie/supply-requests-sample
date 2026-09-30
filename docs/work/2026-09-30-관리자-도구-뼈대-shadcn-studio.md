@@ -27,6 +27,7 @@
 - 대시보드: 상태별 건수 카드(studio statistics-card), 세 조회는 Promise.all
 - 예제 페이지(app/*-01)와 예제 내용(소셜 아이콘, 언어 선택, 가짜 프로필)을 지움
 - docs/design.md 에 쓰는 블록 목록, docs/screens.md 에 대시보드
+- 템플릿 v1.8.0 의 규칙·검사 반영: /add-block 스킬, check:app(예제 페이지·예제 내용), report:scale(shadcn CLI 가 만든 파일 제외)
 
 ## 검증
 

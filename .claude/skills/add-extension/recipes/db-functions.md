@@ -64,7 +64,7 @@ DB 테스트에서 켤 수 있는 확장은 `btree_gin`, `citext`, `moddatetime`
 ## 확인 방법
 
 - `pnpm test` 통과(구조 검사와 함수 테스트).
-- 사용자가 실행: `pnpm supabase db advisors --project-ref 《개발 Project ID》 --type security`. `function_search_path_mutable`(0011), `anon_security_definer_function_executable`(0028), `authenticated_security_definer_function_executable`(0029)가 없다.
+- 사용자가 실행: `pnpm supabase db advisors --linked --project-ref 《개발 Project ID》 --type security`. `function_search_path_mutable`(0011), `anon_security_definer_function_executable`(0028), `authenticated_security_definer_function_executable`(0029)가 없다.
 - 브라우저에서 금지된 상태 변경을 시도하면 오류가 나고 허용된 변경은 된다.
 
 ## 출처

@@ -72,6 +72,23 @@ for (const path of files) {
       "조회 결과가 없으면 next/navigation 의 notFound() 를 부른다. 정책이 막은 행도 0행으로 오므로 같은 길로 처리된다",
     );
   }
+  if (
+    name === "page.tsx" &&
+    !/^app\/(\((app|auth)\)\/|health\/|page\.tsx$)/.test(shown)
+  ) {
+    add(
+      path,
+      "화면이 app/(app)/, app/(auth)/ 밖에 있다. 블록을 넣을 때 딸려 온 예제 페이지이거나 뼈대 밖의 화면이다.",
+      "예제 페이지면 폴더째 지운다(/add-block 5단계). 실제 화면이면 app/(app)/《화면》/ 으로 옮긴다",
+    );
+  }
+  if (/cdn\.shadcnstudio\.com|shadcn\/studio|Shadcn Studio/.test(text)) {
+    add(
+      path,
+      "shadcn studio 블록의 예제 내용(외부 이미지 주소나 상표 문구)이 남아 있다.",
+      "예제 이미지·문구를 지우고 우리 내용으로 채운다(/add-block 6단계)",
+    );
+  }
   if (name === "page.tsx" && inApp && !/<PageHeader\b/.test(text)) {
     add(
       path,

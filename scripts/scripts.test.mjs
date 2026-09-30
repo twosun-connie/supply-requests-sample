@@ -150,11 +150,14 @@ describe("check-migrations", () => {
     assert.match(check().stderr, /파일 이름/);
   });
   const sensitive = {
-    주민등록번호: "alter table public.profiles add column national_id_number text, add column nickname text;",
+    주민등록번호:
+      "alter table public.profiles add column national_id_number text, add column nickname text;",
     "주민등록번호(create table)":
       "create table public.staff (id uuid primary key, name text not null, resident_registration_no varchar(14), check (char_length(name) > 0));",
-    여권번호: 'alter table public.profiles add column if not exists "passport_no" text;',
-    계좌번호: "create table public.payees (id uuid primary key, bank_account text);",
+    여권번호:
+      'alter table public.profiles add column if not exists "passport_no" text;',
+    계좌번호:
+      "create table public.payees (id uuid primary key, bank_account text);",
     카드번호: "alter table public.profiles add card_number text;",
   };
   for (const [kind, sql] of Object.entries(sensitive)) {
@@ -197,7 +200,10 @@ describe("check-migrations", () => {
     );
     const result = check();
     assert.equal(result.status, 0, result.stderr);
-    assert.match(result.stdout, /개인정보로 보이는 열을 더한다: public\.profiles\.phone_number/);
+    assert.match(
+      result.stdout,
+      /개인정보로 보이는 열을 더한다: public\.profiles\.phone_number/,
+    );
   });
   it("이미 DB 에 적용한 파일은 검사하지 않는다", () => {
     migration("20260201000000_old", "drop table public.legacy;");
@@ -375,6 +381,16 @@ export async function save(_previous, formData) {
       "app/(app)/memos/page.tsx",
       "export default async function Page() { await requireUser(); return <main><h1>메모</h1></main>; }",
       /PageHeader 로 시작하지 않는다/,
+    ],
+    "블록에 딸려 온 예제 페이지": [
+      "app/login-page-01/page.tsx",
+      "export default function Page() { return null; }",
+      /app\/\(app\)\/, app\/\(auth\)\/ 밖에 있다/,
+    ],
+    "블록의 예제 내용이 남은 조각": [
+      "components/shadcn-studio/blocks/dropdown-profile.tsx",
+      'export function Profile() { return <img src="https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-1.png" alt="" />; }',
+      /예제 내용\(외부 이미지 주소나 상표 문구\)/,
     ],
     "클라이언트 컴포넌트인 페이지": [
       "app/(app)/memos/page.tsx",
@@ -634,6 +650,13 @@ describe("report-scale", () => {
     assert.match(result.stdout, /화면 40개/);
     assert.match(result.stdout, /개발을 멈출 필요는 없다/);
   });
+  it("shadcn CLI 가 만든 큰 파일은 크기 알림에서 뺀다", () => {
+    write("components/ui/sidebar.tsx", "export {};\n".repeat(700));
+    const result = run("report-scale.mjs");
+    assert.equal(result.status, 0);
+    assert.doesNotMatch(result.stdout, /sidebar\.tsx/);
+    assert.doesNotMatch(result.stdout, /\[알림\]/);
+  });
   it("작은 프로젝트에서는 알림이 없다", () => {
     const result = run("report-scale.mjs");
     assert.equal(result.status, 0);
@@ -823,11 +846,20 @@ describe("문서 검사와 기록", () => {
 ## 다음에 막을 것
 `;
   const WORK_DONE = WORK_OPEN.replace("상태: 진행 중", "상태: 완료")
-    .replace("## 한 일\n", "## 한 일\n- app/(app)/memos/queries.ts — 검색 조건\n")
+    .replace(
+      "## 한 일\n",
+      "## 한 일\n- app/(app)/memos/queries.ts — 검색 조건\n",
+    )
     .replace("## 검증\n", "## 검증\n- `pnpm verify`: 통과. 테스트 55건\n")
     .replace("## 하지 않은 것\n", "## 하지 않은 것\n- 품목 이름 검색\n")
-    .replace("## 사람이 할 일\n", "## 사람이 할 일\n- [ ] member 계정으로 /memos 에서 검색 확인\n")
-    .replace("## 다음에 막을 것\n", "## 다음에 막을 것\n- 검색 패턴을 직접 만들었다 — 검사가 없었다 — check:app 에 더한다\n");
+    .replace(
+      "## 사람이 할 일\n",
+      "## 사람이 할 일\n- [ ] member 계정으로 /memos 에서 검색 확인\n",
+    )
+    .replace(
+      "## 다음에 막을 것\n",
+      "## 다음에 막을 것\n- 검색 패턴을 직접 만들었다 — 검사가 없었다 — check:app 에 더한다\n",
+    );
   const DECISION = `# 엑셀 패키지
 
 - 날짜: 2026-09-30
@@ -854,8 +886,14 @@ exceljs 를 쓴다.
     write("docs/work/_template.md", template("work"));
     write("docs/decisions/_template.md", template("decisions"));
     write("docs/schema.md", "# 데이터\n");
-    write("docs/screens.md", "# 화면 목록\n\n| 화면 | 경로 |\n|---|---|\n| 메모 | `/memos` |\n");
-    write("app/(app)/memos/page.tsx", "export default function Page() { return null; }");
+    write(
+      "docs/screens.md",
+      "# 화면 목록\n\n| 화면 | 경로 |\n|---|---|\n| 메모 | `/memos` |\n",
+    );
+    write(
+      "app/(app)/memos/page.tsx",
+      "export default function Page() { return null; }",
+    );
     git("init", "-q", "-b", "main");
     git("config", "user.email", "test@example.com");
     git("config", "user.name", "test");
@@ -896,7 +934,9 @@ exceljs 를 쓴다.
     write("app/(app)/memos/queries.ts", 'import "server-only";');
     write(
       "docs/work/2026-09-30-신청-목록-검색.md",
-      template("work").replace("《제목》", "검색").replace("《날짜》", "2026-09-30"),
+      template("work")
+        .replace("《제목》", "검색")
+        .replace("《날짜》", "2026-09-30"),
     );
     assert.match(check().stderr, /「요청」가 비어 있다/);
   });
@@ -923,7 +963,10 @@ exceljs 를 쓴다.
   });
   it("마이그레이션을 더했으면 schema.md 도 바뀌어야 한다", () => {
     write("docs/work/2026-09-30-신청-목록-검색.md", WORK_OPEN);
-    migration("20260201000000_add_memos", "create table public.memos (id uuid primary key);");
+    migration(
+      "20260201000000_add_memos",
+      "create table public.memos (id uuid primary key);",
+    );
     assert.match(check().stderr, /docs\/schema\.md 가 그대로다/);
     write("docs/schema.md", "# 데이터\n\n| memos |\n");
     const result = check();
@@ -931,13 +974,25 @@ exceljs 를 쓴다.
   });
   it("새 화면의 경로가 화면 목록에 있어야 한다", () => {
     write("docs/work/2026-09-30-신청-목록-검색.md", WORK_OPEN);
-    write("app/(app)/memos/[id]/page.tsx", "export default function Page() { return null; }");
+    write(
+      "app/(app)/memos/[id]/page.tsx",
+      "export default function Page() { return null; }",
+    );
     assert.match(check().stderr, /새 화면 \/memos\/\[id\] 가 화면 목록에 없다/);
-    write("docs/screens.md", "| 메모 | `/memos` |\n| 메모 상세 | `/memos/[id]` |\n");
+    write(
+      "docs/screens.md",
+      "| 메모 | `/memos` |\n| 메모 상세 | `/memos/[id]` |\n",
+    );
     const result = check();
     assert.equal(result.status, 0, result.stderr);
-    write("app/health/page.tsx", "export default function Page() { return null; }");
-    write("app/(auth)/login/page.tsx", "export default function Page() { return null; }");
+    write(
+      "app/health/page.tsx",
+      "export default function Page() { return null; }",
+    );
+    write(
+      "app/(auth)/login/page.tsx",
+      "export default function Page() { return null; }",
+    );
     assert.equal(check().status, 0, "기반 화면은 화면 목록을 요구하지 않는다");
   });
   it("패키지를 더했으면 결정 기록이 있어야 한다", () => {
@@ -964,11 +1019,20 @@ exceljs 를 쓴다.
     const result = check();
     assert.match(result.stderr, /확장을 켰다: storage/);
     assert.match(result.stderr, /sensitive-ok 가 있다/);
-    write("docs/decisions/2026-09-30-확장-storage.md", DECISION.replace("exceljs 를 쓴다.", "방식 파일 .claude/skills/add-extension/recipes/storage.md 를 따른다."));
+    write(
+      "docs/decisions/2026-09-30-확장-storage.md",
+      DECISION.replace(
+        "exceljs 를 쓴다.",
+        "방식 파일 .claude/skills/add-extension/recipes/storage.md 를 따른다.",
+      ),
+    );
     const after = check();
     assert.doesNotMatch(after.stderr, /확장 storage 의 결정 기록에/);
     write("docs/decisions/2026-09-30-확장-storage.md", DECISION);
-    assert.match(check().stderr, /방식 파일\(.claude\/skills\/add-extension\/recipes\/storage\.md\)이 적혀 있지 않다/);
+    assert.match(
+      check().stderr,
+      /방식 파일\(.claude\/skills\/add-extension\/recipes\/storage\.md\)이 적혀 있지 않다/,
+    );
   });
   it("브랜치에서 커밋한 변경도 본다", () => {
     git("checkout", "-q", "-b", "feat/search");
@@ -997,7 +1061,10 @@ exceljs 를 쓴다.
     assert.match(text, /^# 신청 목록 검색/);
     assert.match(text, /- 날짜: \d{4}-\d{2}-\d{2}/);
     assert.doesNotMatch(text, /이 파일을 고치지 않는다/);
-    assert.equal(run("new-doc.mjs", ["work", "신청", "목록", "검색"]).status, 1);
+    assert.equal(
+      run("new-doc.mjs", ["work", "신청", "목록", "검색"]).status,
+      1,
+    );
     assert.equal(run("new-doc.mjs", ["decision", "엑셀 패키지"]).status, 0);
     assert.equal(run("new-doc.mjs", ["memo", "x"]).status, 1);
     assert.equal(run("new-doc.mjs", ["work", "!!!"]).status, 1);
@@ -1012,7 +1079,10 @@ exceljs 를 쓴다.
     const result = run("report-docs.mjs");
     assert.equal(result.status, 0);
     assert.match(result.stdout, /작업 기록 2건, 결정 기록 1건/);
-    assert.match(result.stdout, /끝나지 않은 작업\n- docs\/work\/2026-09-30-신청-목록-검색\.md/);
+    assert.match(
+      result.stdout,
+      /끝나지 않은 작업\n- docs\/work\/2026-09-30-신청-목록-검색\.md/,
+    );
     assert.match(result.stdout, /member 계정으로 \/memos 에서 검색 확인/);
     assert.match(result.stdout, /정해지지 않은 결정/);
     assert.match(result.stdout, /검색 패턴을 직접 만들었다/);

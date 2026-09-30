@@ -13,6 +13,7 @@ allowed-tools: Bash(pnpm verify) Bash(pnpm verify:quick) Bash(pnpm exec vitest r
 2. **브랜치를 알린다.** `git checkout -b feat/《화면-영문-이름》`. 실행은 사용자가 한다.
 3. **기록을 열고 계획을 보여 준다.** `pnpm docs:new work 《화면-이름》`. 요청과 아래 계획을 기록에 적고 승인을 기다린다.
    - 만들 파일과 파일마다 하는 일
+   - 배치: `docs/design.md` 「화면 뼈대」의 어느 형태인가(목록·상세·폼), 「쓰는 블록 목록」에서 쓸 블록(목록에 없는 블록이 필요하면 `/add-block`을 먼저 한다)
    - 쓰는 테이블·열, 필요한 권한 코드
    - DB 변경: 없음 / 있음(있으면 `/new-migration`을 먼저 하고, 사용자가 적용을 끝낸 뒤 돌아온다)
    - 필요한 shadcn/ui 컴포넌트 가운데 아직 없는 것(설치 명령)
@@ -26,7 +27,7 @@ allowed-tools: Bash(pnpm verify) Bash(pnpm verify:quick) Bash(pnpm exec vitest r
 | 3 | `queries.ts` | `import "server-only"`, 필요한 열만, 쪽 나누기. 검색어는 `toContainsPattern()`, 정렬은 허용 목록(`security.md` §3) |
 | 4 | `actions.ts` | `data-access.md` §4의 순서. 반환은 `ActionResult` |
 | 5 | `page.tsx`, `loading.tsx`, `error.tsx` | 조회보다 먼저 `requireUser()` 또는 `requirePermission()`. 주소에 ID를 받으면 행이 없을 때 `notFound()`. `<main>` 없이 `PageHeader`로 시작, 빈 상태는 `EmptyState`(`docs/design.md` 「화면 뼈대」) |
-| 5-1 | `lib/navigation.ts` | 최상위 화면이면 `NAV_ITEMS`에 한 줄. `docs/screens.md`의 순서대로 |
+| 5-1 | `lib/navigation.ts` | 최상위 화면이면 `NAV_ITEMS`에 한 줄(`icon`은 lucide-react, `group`은 사이드바 묶음 이름). 하위 화면의 주소 조각은 `SEGMENT_LABEL`에. `docs/screens.md`의 순서대로 |
 | 6 | `《이름》-form.tsx` | 상호작용이 있는 조각만 `"use client"` |
 
 5. **검증한다.** `pnpm verify`. 실패하면 고치고 다시 돌린다. 끝에 나오는 규칙 대응표에서 이 화면의 규칙에 "테스트 없음"이 있으면 빠뜨린 것이다. 구현과 테스트를 더한다.

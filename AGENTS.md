@@ -42,7 +42,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ```text
 app/layout.tsx, app/theme.css  글꼴·제목·테마 변수(색은 theme.css 만 고친다)
 app/(auth)/login/             로그인
-app/(app)/layout.tsx          헤더(components/app-header.tsx)와 본문 폭. 화면은 <main> 을 만들지 않는다
+app/(app)/layout.tsx          사이드바·위 띠·본문 폭(관리자 도구 뼈대). 화면은 <main> 을 만들지 않는다
 app/(app)/《화면》/             화면 하나 = 폴더 하나. PageHeader 로 시작한다
   page.tsx, loading.tsx, error.tsx   조립과 상태. 서버 컴포넌트
   queries.ts                  조회. 첫 줄에 import "server-only"
@@ -52,7 +52,7 @@ app/(app)/《화면》/             화면 하나 = 폴더 하나. PageHeader �
   《이름》-form.tsx             상호작용이 있는 조각만 "use client"
 features/《이름》/              화면 2곳 이상이 같이 쓰는 queries·actions·schema·rules
 components/ui/                shadcn/ui. CLI가 만든다. 직접 고치지 않는다
-components/                   공용 화면 조각: page-header, empty-state, app-header, nav-links
+components/                   공용 조각: page-header, empty-state, app-sidebar, app-topbar, user-menu. shadcn-studio/ 는 고쳐 쓴 블록(/add-block)
 lib/site.ts, lib/navigation.ts  서비스 이름(project.config.json), 메뉴(권한 코드로 거른다)
 lib/supabase/                 클라이언트 3개, database.types.ts(생성물)
 lib/auth.ts, lib/action.ts    로그인·권한 확인, 서버 액션의 반환 형태

@@ -131,5 +131,5 @@ create policy "requests: update own submitted" on public.requests
 ## 9. 적용
 
 - AI는 DB에 적용하지 않는다. 사용자가 `pnpm db:push`(개발), `pnpm db:push --prod`(운영)를 실행한다.
-- 운영 적용 뒤 사용자가 보안 점검을 본다: `pnpm supabase db advisors --project-ref 《운영 Project ID》 --type security`.
+- 운영 적용 뒤 사용자가 보안 점검을 본다: `pnpm supabase db advisors --linked --project-ref 《운영 Project ID》 --type security`.
 - MCP로 DB를 바꾸지 않는다. Supabase MCP는 개발 프로젝트에 읽기 전용으로만 연결한다.
