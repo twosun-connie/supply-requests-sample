@@ -1,0 +1,25 @@
+# Supabase 프로젝트 설정 가운데 코드로 관리할 수 있는 것만 적는다. 적용: pnpm supabase config push --project-ref 《ID》
+# 여기 적지 않은 항목은 대시보드 값이 그대로 남는다(supabase config push --help). 적용 전에 config diff 로 확인한다.
+# site_url 은 프로젝트마다 다르다(개발: 내 PC, 운영: 운영 주소). 실행하는 셸의 환경 변수 SUPABASE_AUTH_SITE_URL 에서 읽는다.
+
+[auth]
+site_url = "env(SUPABASE_AUTH_SITE_URL)"
+# 미리 보기 배포(Vercel)와 내 PC 의 이동 대상. 운영 주소는 site_url 이다.
+additional_redirect_urls = [
+  "http://localhost:3000/**",
+  "https://*-sasem-2k.vercel.app/**",
+  "https://supply-requests-sample.vercel.app/**",
+]
+# 가입은 관리자의 초대로만 한다. 누구나 가입하면 로그인한 사용자로서 정책이 연 표를 읽는다.
+enable_signup = false
+enable_anonymous_sign_ins = false
+minimum_password_length = 10
+password_requirements = "lower_upper_letters_digits_symbols"
+
+[auth.email]
+enable_confirmations = true
+
+# 토큰에 user_role 을 넣는 훅. 켜지 않으면 모든 사용자가 member 다.
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/public/custom_access_token_hook"

@@ -27,7 +27,7 @@ beforeEach(async () => {
   other = await db.createUser();
   admin = await db.createUser("admin");
   await db.admin(
-    "insert into public.profiles (id, full_name) values ($1, '구성원'), ($2, '다른 구성원'), ($3, '관리자')",
+    "insert into public.profiles (id, full_name) values ($1, '구성원'), ($2, '다른 구성원'), ($3, '관리자') on conflict (id) do update set full_name = excluded.full_name",
     [member.id, other.id, admin.id],
   );
 });
