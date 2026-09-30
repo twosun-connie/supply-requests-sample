@@ -23,7 +23,8 @@
       "Bash(pnpm db:types)",
       "Bash(pnpm supabase migration new *)",
       "Bash(node --test .claude/hooks/hooks.test.mjs)",
-      "Bash(node --test scripts/scripts.test.mjs)"
+      "Bash(node --test scripts/scripts.test.mjs)",
+      "Bash(pnpm supabase config diff *)"
     ],
     "deny": [
       "Read(.env)",
@@ -41,6 +42,7 @@
       "Bash(*supabase db reset*)",
       "Bash(*supabase link*)",
       "Bash(*supabase migration repair*)",
+      "Bash(*supabase config push*)",
       "Bash(*supabase secrets *)",
       "Bash(*supabase functions deploy*)",
       "Bash(*db:push*)",
@@ -118,7 +120,9 @@
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/session-start.mjs"],
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/session-start.mjs"
+            ],
             "timeout": 10
           }
         ]
@@ -131,13 +135,17 @@
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/protect-paths.mjs"],
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/protect-paths.mjs"
+            ],
             "timeout": 10
           },
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-secrets.mjs"],
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-secrets.mjs"
+            ],
             "timeout": 10
           }
         ]
@@ -148,7 +156,9 @@
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-bash.mjs"],
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-bash.mjs"
+            ],
             "timeout": 10
           }
         ]
@@ -161,7 +171,9 @@
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/format-edited.mjs"],
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/format-edited.mjs"
+            ],
             "timeout": 60
           }
         ]
@@ -173,7 +185,9 @@
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/verify-on-stop.mjs"],
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/verify-on-stop.mjs"
+            ],
             "timeout": 300
           }
         ]

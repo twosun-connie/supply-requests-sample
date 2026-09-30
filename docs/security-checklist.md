@@ -16,7 +16,7 @@
 - [ ] 이메일 확인(Confirm email)이 켜져 있다
 - [ ] 비밀번호: 최소 길이 10자 이상, 문자 종류 요구를 가장 강한 것으로 했다. `app/(auth)/set-password/schema.ts`의 값과 맞췄다
 - [ ] 유출된 비밀번호 차단을 켰다(Pro 요금제 이상)
-- [ ] Site URL이 운영 주소다. Redirect URLs에는 운영 주소의 정확한 경로(`https://《운영 주소》/auth/confirm`)와 미리 보기용 패턴(`https://*-《Vercel 팀 슬러그》.vercel.app/**`)만 있다. 미리 보기 패턴이 없으면 미리 보기 주소에서 로그인 뒤 이동이 막힌다
+- [ ] Site URL이 운영 주소다. Redirect URLs에는 운영 주소(`https://《운영 주소》/**`)와 미리 보기용 패턴(`https://*-《슬러그》.vercel.app/**`, 슬러그는 Vercel 배포 주소의 끝부분. 예: 배포 주소가 `…-abc123-sasem-2k.vercel.app`이면 `sasem-2k`)만 있다. 미리 보기 패턴이 없으면 미리 보기 주소에서 로그인 뒤 이동이 막힌다. `supabase/config.toml`에 적고 `config push`로 넣을 수 있다
 - [ ] 메일 템플릿(초대, 비밀번호 재설정)의 링크를 `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=《invite 또는 recovery》&next=/set-password`로 바꿨다
 - [ ] 메일 발송을 직접 설정했다(Custom SMTP). 기본 발송은 팀 구성원에게만, 시간당 몇 통만 간다
 - [ ] Custom Access Token 훅이 켜져 있고 `public.custom_access_token_hook`을 가리킨다
@@ -30,7 +30,7 @@
 
 ## 3. 데이터베이스와 API (Supabase)
 
-- [ ] 보안 점검에 경고가 없다: `pnpm supabase db advisors --project-ref 《Project ID》 --type security`
+- [ ] 보안 점검에 경고가 없다: `pnpm supabase db advisors --linked --project-ref 《Project ID》 --type security`
 - [ ] SSL 강제(Enforce SSL)를 켰다
 - [ ] Data API에 노출하는 스키마는 `public`뿐이다. `private`는 넣지 않았다
 - [ ] GraphQL을 쓰지 않으면 `pg_graphql` 확장을 껐다
@@ -41,7 +41,7 @@
 
 - [ ] 운영(Production)과 미리 보기(Preview)의 환경 변수가 다르다. **미리 보기에는 운영 프로젝트의 주소와 키를 넣지 않았다.** 운영 주소의 `/health`에 운영 프로젝트가, 미리 보기 주소의 `/health`에 개발 프로젝트가 보인다
 - [ ] secret 키를 쓰면(`admin-api` 확장) Sensitive로 등록했다. 이름에 `NEXT_PUBLIC_`이 없다
-- [ ] 환경 변수 `ENABLE_EXPERIMENTAL_COREPACK`=`1`을 모든 환경에 넣었다. 없으면 Vercel이 `pnpm-lock.yaml`만 보고 pnpm 9·10으로 설치해 `pnpm-workspace.yaml`의 공급망 설정(`minimumReleaseAge` 등)이 적용되지 않을 수 있다. 빌드 로그의 pnpm 버전이 `package.json`의 `packageManager`와 같다
+- [ ] 빌드 로그에 `Done in … using pnpm v12.x`와 `Lockfile passes supply-chain policies`가 보인다. `package.json`의 `packageManager`가 있으면 Vercel이 그 버전을 쓴다(실측 2026-09-30). 환경 변수 `ENABLE_EXPERIMENTAL_COREPACK`=`1`은 보험으로 넣어 둔다
 - [ ] 미리 보기 배포에 로그인 보호가 켜져 있다: Settings › Deployment Protection › Vercel Authentication, 범위 Standard Protection. 운영 주소는 열리고 미리 보기·생성 주소는 Vercel 팀원만 연다
 - [ ] 함수 리전이 Supabase 프로젝트와 같은 곳이다(`vercel.json`의 `regions`, 서울이면 `icn1`). 배포 요약(Resources)의 Function Region으로 확인한다
 - [ ] Skew Protection이 켜져 있다(Settings › Advanced). 배포 직후 열려 있던 화면이 옛 서버 액션을 불러 오류가 나는 것을 막는다. 화면을 오래 열어 두는 도구면 최대 유지 기간을 늘린다
@@ -53,7 +53,7 @@
 
 - [ ] 비밀 값 탐지와 push 보호를 켰다(GitHub: Secret scanning, Push protection)
 - [ ] `.env.local`이 커밋되지 않았다: `git ls-files | grep -E '^\.env'`의 결과가 `.env.example`뿐이다
-- [ ] 기본 브랜치에 직접 push 하지 못하게 했다(혼자 쓰면 선택)
+- [ ] 기본 브랜치에 직접 push 하지 못하게 했다: 브랜치 보호에서 `verify`를 필수 검사로 걸고 **"Include administrators"(관리자에게도 적용)를 켠다.** 켜지 않으면 저장소 소유자의 직접 push는 그대로 들어간다(실측). GitHub Free는 공개 저장소에서만 브랜치 보호가 된다
 
 ## 6. 개인정보
 

@@ -71,7 +71,7 @@ if (added.length > 0) appendFileSync(PUSHED_RECORD, `${added.join("\n")}\n`);
 console.log(`\n${label} DB 에 적용했다.`);
 console.log(
   isProd
-    ? `다음: 보안 점검을 확인한다 → pnpm supabase db advisors --project-ref ${project.ref} --type security`
+    ? `다음: 보안 점검을 확인한다 → pnpm supabase db advisors --linked --project-ref ${project.ref} --type security`
     : "다음: DB 타입을 다시 만든다 → pnpm db:types (AI 에게 시켜도 된다)",
 );
 

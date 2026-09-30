@@ -37,6 +37,7 @@ const HUMAN_ONLY = [
   [/\bpnpm\s+(run\s+)?db:push\b|\bdb-push\.mjs\b/, "pnpm db:push", "사용자에게 실행을 요청한다. 적용 대상은 사람이 확인한다."],
   [/\bsupabase\b[^;&|]*\s(link|unlink)\b/, "supabase link", "사용자에게 실행을 요청한다. 연결 대상을 바꾸는 것은 사람이 한다."],
   [/\bsupabase\b[^;&|]*\bmigration\s+(repair|squash)\b/, "supabase migration repair·squash", "적용 기록을 고치는 명령이다. 필요한 이유와 명령을 사용자에게 제시한다."],
+  [/\bsupabase\b[^;&|]*\bconfig\s+push\b/, "supabase config push", "원격 프로젝트의 설정을 바꾼다. supabase/config.toml 을 고치고 사용자에게 config diff → config push 를 요청한다."],
   [/\bsupabase\b[^;&|]*\bsecrets\s+(set|unset)\b/, "supabase secrets", "비밀 값은 사용자가 넣는다. 변수 이름만 알려 준다."],
   [/\bsupabase\b[^;&|]*\bfunctions\s+(deploy|delete)\b/, "supabase functions deploy", "배포는 사용자가 한다. 명령만 제시한다."],
   [/\bvercel\b[^;&|]*\s(deploy|--prod|promote|rollback|env\s+(add|rm|pull))\b/, "vercel 배포·환경 변수", "배포와 환경 변수는 사용자가 한다. 명령만 제시한다."],

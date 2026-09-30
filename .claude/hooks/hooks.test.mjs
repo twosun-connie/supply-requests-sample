@@ -194,6 +194,8 @@ describe("guard-bash: 사람이 실행하는 명령", () => {
     assert.equal(bash("npx supabase  db   push --include-all"), BLOCK);
     assert.equal(bash("supabase --workdir . db reset --linked"), BLOCK);
     assert.equal(bash("pnpm db:push"), BLOCK);
+    assert.equal(bash("pnpm supabase config push --project-ref abc"), BLOCK);
+    assert.equal(bash("pnpm supabase config diff --project-ref abc"), ALLOW);
     assert.equal(bash("pnpm run db:push"), BLOCK);
     assert.equal(bash("DB_PUSH_TEST=1 node scripts/db-push.mjs --prod"), BLOCK);
   });
