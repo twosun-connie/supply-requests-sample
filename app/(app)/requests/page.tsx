@@ -10,6 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/page-header";
 import { hasPermission, requireUser } from "@/lib/auth";
 import { Constants, type Database } from "@/lib/supabase/database.types";
 import { listRequests, PAGE_SIZE } from "./queries";
@@ -62,13 +64,20 @@ export default async function RequestsPage({
   const totalPages = Math.max(Math.ceil(total / PAGE_SIZE), 1);
 
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4">
-      <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-semibold">신청 목록</h1>
-        <Button nativeButton={false} render={<Link href="/requests/new" />}>
-          새 신청
-        </Button>
-      </div>
+    <div className="flex flex-col gap-4">
+      <PageHeader
+        title="신청 목록"
+        description={
+          canViewAll
+            ? "전체 신청을 보고 승인·반려합니다."
+            : "내가 낸 신청과 처리 상태를 봅니다."
+        }
+        actions={
+          <Button nativeButton={false} render={<Link href="/requests/new" />}>
+            새 신청
+          </Button>
+        }
+      />
 
       <nav aria-label="상태로 거르기" className="flex flex-wrap gap-1 text-sm">
         {STATUS_FILTERS.map((filter) => (
@@ -89,45 +98,48 @@ export default async function RequestsPage({
       </nav>
 
       {rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          아직 신청이 없습니다. 「새 신청」을 눌러 시작하세요.
-        </p>
+        <EmptyState
+          title="아직 신청이 없습니다"
+          description="「새 신청」을 눌러 시작하세요."
+        />
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {canViewAll && <TableHead>신청자</TableHead>}
-              <TableHead>품목</TableHead>
-              <TableHead>수량</TableHead>
-              <TableHead>상태</TableHead>
-              <TableHead>신청일</TableHead>
-              <TableHead className="sr-only">상세</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row.id}>
-                {canViewAll && <TableCell>{row.requesterName}</TableCell>}
-                <TableCell>{row.itemName}</TableCell>
-                <TableCell>{row.quantity}</TableCell>
-                <TableCell>
-                  <Badge variant={STATUS_BADGE_VARIANT[row.status]}>
-                    {STATUS_LABEL[row.status]}
-                  </Badge>
-                </TableCell>
-                <TableCell>{formatDate(row.createdAt)}</TableCell>
-                <TableCell>
-                  <Link
-                    href={`/requests/${row.id}`}
-                    className="text-sm text-primary underline-offset-4 hover:underline"
-                  >
-                    상세 열기
-                  </Link>
-                </TableCell>
+        <div className="overflow-x-auto rounded-lg border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {canViewAll && <TableHead>신청자</TableHead>}
+                <TableHead>품목</TableHead>
+                <TableHead>수량</TableHead>
+                <TableHead>상태</TableHead>
+                <TableHead>신청일</TableHead>
+                <TableHead className="sr-only">상세</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow key={row.id}>
+                  {canViewAll && <TableCell>{row.requesterName}</TableCell>}
+                  <TableCell>{row.itemName}</TableCell>
+                  <TableCell>{row.quantity}</TableCell>
+                  <TableCell>
+                    <Badge variant={STATUS_BADGE_VARIANT[row.status]}>
+                      {STATUS_LABEL[row.status]}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>{formatDate(row.createdAt)}</TableCell>
+                  <TableCell>
+                    <Link
+                      href={`/requests/${row.id}`}
+                      className="text-sm text-primary underline-offset-4 hover:underline"
+                    >
+                      상세 열기
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -165,7 +177,7 @@ export default async function RequestsPage({
           )}
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 

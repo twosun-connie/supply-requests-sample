@@ -1,4 +1,6 @@
 {
+  "name": "비품 신청",
+  "description": "구성원이 비품을 신청하고 담당자가 승인·반려하는 사내 도구",
   "extensions": [
     "db-functions"
   ],
