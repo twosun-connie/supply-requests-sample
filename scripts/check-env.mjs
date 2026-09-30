@@ -75,7 +75,7 @@ const hooksPath = (
 check(
   hooksPath.startsWith(".husky"),
   `git 훅 경로(${hooksPath || "없음"})`,
-  "pnpm exec husky 를 실행한다(package.json 의 prepare 가 pnpm install 때 실행한다)",
+  "pnpm exec husky 를 실행한다. 저장소를 새로 내려받은 폴더에서는 pnpm install 이 대신 한다(이미 설치된 폴더에서는 하지 않는다)",
 );
 
 const projects = readProjects();
@@ -145,8 +145,15 @@ check(
   ".env.local 의 키가 publishable 키",
   "대시보드 Settings › API Keys 의 Publishable key 를 넣는다. sb_secret_ 으로 시작하는 키는 넣지 않는다",
 );
+// 주석 줄은 보지 않는다. .env.example 을 복사하면 「sb_secret_ 으로 시작하는 키다」라는 안내 주석이 따라온다.
+const misplacedSecret = env
+  .split(/\r?\n/)
+  .filter((line) => !/^\s*#/.test(line))
+  .some(
+    (line) => /sb_secret_/.test(line) && !/^SUPABASE_SECRET_KEY=/.test(line),
+  );
 check(
-  !/sb_secret_/.test(env) || /^SUPABASE_SECRET_KEY=/m.test(env),
+  !misplacedSecret,
   "secret 키의 변수 이름",
   "secret 키는 SUPABASE_SECRET_KEY 에만 넣는다(admin-api 확장을 켰을 때)",
 );

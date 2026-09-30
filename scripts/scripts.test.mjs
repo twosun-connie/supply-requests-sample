@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {
   chmodSync,
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -925,6 +926,21 @@ exceljs 를 쓴다.
     const result = check();
     assert.equal(result.status, 0, result.stderr);
   });
+  it("커밋이 하나도 없는 새 저장소에서도 돈다(기록이 없으면 막고, 있으면 통과)", () => {
+    rmSync(join(project, ".git"), { recursive: true, force: true });
+    git("init", "-q", "-b", "main");
+    write(
+      "package.json",
+      JSON.stringify({ name: "fixture", dependencies: { next: "16.0.0" } }),
+    );
+    const before = check();
+    assert.equal(before.status, 1, before.stdout);
+    assert.match(before.stderr, /작업 기록이 없다/);
+    assert.doesNotMatch(before.stderr, /TypeError|결정 기록이 없다/);
+    write("docs/work/2026-09-30-신청-목록-검색.md", WORK_OPEN);
+    const after = check();
+    assert.equal(after.status, 0, after.stderr);
+  });
   it("문서만 바꾸면 작업 기록을 요구하지 않는다", () => {
     write("docs/schema.md", "# 데이터\n\n메모\n");
     assert.equal(check().status, 0);
@@ -1124,6 +1140,52 @@ exceljs 를 쓴다.
     const result = run("report-docs.mjs");
     assert.equal(result.status, 0);
     assert.match(result.stdout, /남은 일 없음/);
+  });
+});
+
+describe("check-env: .env.local", () => {
+  const example = () =>
+    readFileSync(join(SCRIPTS, "..", "env.example"), "utf8");
+  const lineOf = (title) =>
+    run("check-env.mjs", [], {
+      env: { SUPABASE_BIN: "/bin/false" },
+    })
+      .stdout.split("\n")
+      .find((line) => line.includes(title)) ?? "";
+
+  it(
+    ".env.example 을 복사해 값을 넣은 파일은 통과한다(안내 주석의 sb_secret_ 을 값으로 보지 않는다)",
+    { skip: !existsSync(join(SCRIPTS, "..", "env.example")) },
+    () => {
+      write(
+        ".env.local",
+        example()
+          .replace(
+            /^NEXT_PUBLIC_SUPABASE_URL=$/m,
+            "NEXT_PUBLIC_SUPABASE_URL=https://abcdefghijklmnopqrst.supabase.co",
+          )
+          .replace(
+            /^NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$/m,
+            "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_example",
+          ),
+      );
+      assert.match(lineOf("secret 키의 변수 이름"), /✔/);
+      assert.match(lineOf("publishable 키"), /✔/);
+    },
+  );
+  it("secret 키를 다른 이름에 넣으면 알린다", () => {
+    write(
+      ".env.local",
+      "NEXT_PUBLIC_SUPABASE_URL=https://abcdefghijklmnopqrst.supabase.co\nNEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_secret_wrong\n",
+    );
+    assert.match(lineOf("secret 키의 변수 이름"), /✖/);
+  });
+  it("secret 키를 제 이름에 넣으면 통과한다", () => {
+    write(
+      ".env.local",
+      "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_example\nSUPABASE_SECRET_KEY=sb_secret_right\n",
+    );
+    assert.match(lineOf("secret 키의 변수 이름"), /✔/);
   });
 });
 
