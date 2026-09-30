@@ -7,12 +7,14 @@ import {
   NativeSelectOption,
 } from "@/components/ui/native-select";
 import type { ActionResult } from "@/lib/action";
+import type { Role } from "@/lib/auth";
+import { ROLE_LABEL } from "@/lib/navigation";
 import { changeUserRole } from "./actions";
 
 type Props = {
   userId: string;
-  role: string;
-  roles: readonly string[];
+  role: Role;
+  roles: readonly Role[];
   disabled: boolean;
 };
 
@@ -34,7 +36,7 @@ export function RoleForm({ userId, role, roles, disabled }: Props) {
       >
         {roles.map((option) => (
           <NativeSelectOption key={option} value={option}>
-            {option}
+            {ROLE_LABEL[option]}
           </NativeSelectOption>
         ))}
       </NativeSelect>
