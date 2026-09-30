@@ -99,6 +99,16 @@ describe("user_roles", () => {
 });
 
 describe("profiles", () => {
+  it("사용자가 생기면 프로필이 자동으로 생긴다(이름은 metadata → 이메일 앞부분 → 사용자)", async () => {
+    const rows = await db.admin(
+      `insert into auth.users (email, raw_user_meta_data) values ('hong@example.com', '{"full_name": "홍길동"}'), ('kim@example.com', '{}'), (null, '{}') returning id`,
+    );
+    const names = await db.admin("select full_name from public.profiles where id = any($1::uuid[]) order by full_name", [
+      rows.map((row) => row.id),
+    ]);
+    expect(names.map((row) => row.full_name)).toEqual(["kim", "사용자", "홍길동"]);
+  });
+
   it("member 는 자기 프로필을 고칠 수 있다", async () => {
     const { count } = await db.as(
       member,

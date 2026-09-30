@@ -241,6 +241,17 @@ describe("함수", () => {
     ).toEqual([]);
   });
 
+  it("사용자가 생기면 프로필을 만드는 트리거가 auth.users 에 있다", async () => {
+    const triggers = await db.admin(
+      `select t.tgname as name from pg_trigger t join pg_class c on c.oid = t.tgrelid join pg_namespace n on n.oid = c.relnamespace
+       where n.nspname = 'auth' and c.relname = 'users' and not t.tgisinternal and t.tgtype & 4 = 4 order by 1`,
+    );
+    expect(
+      triggers.length,
+      "auth.users 의 insert 트리거가 없다. 초대한 사용자가 사용자 관리 화면에 나타나지 않는다. 시작 마이그레이션의 create_profile_for_new_user 를 본다",
+    ).toBeGreaterThan(0);
+  });
+
   it("함수 본문이 user_metadata 로 권한을 판단하지 않는다", async () => {
     const unsafe = await db.admin(
       `select p.proname as name from pg_proc p join pg_namespace n on n.oid = p.pronamespace
