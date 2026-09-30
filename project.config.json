@@ -1,5 +1,7 @@
 {
-  "extensions": [],
+  "extensions": [
+    "db-functions"
+  ],
   "db": {
     "anonReadableTables": []
   }

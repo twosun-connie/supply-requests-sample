@@ -1,12 +1,12 @@
 {
   "dev": {
-    "ref": "devrefdevrefdevrefde",
-    "name": "supplies-dev",
+    "ref": "cfnvgyjafnkaenpfkysh",
+    "name": "supply-requests-dev",
     "region": "ap-northeast-2"
   },
   "prod": {
     "ref": "",
     "name": "",
-    "region": "ap-northeast-2"
+    "region": ""
   }
 }

@@ -106,3 +106,4 @@
 | 2026-01-01 | `20260101000000_rbac` | profiles, user_roles, role_permissions, 역할·권한 함수 | 시작 |
 | 2026-01-10 | `20260110000000_add_approver_role_and_permissions` | 역할 approver, 권한 requests.approve·items.manage | 비품 신청 |
 | 2026-01-10 | `20260110000100_create_items_requests` | items, requests, request_events | 비품 신청 |
+| 2026-09-30 | `20260930045036_create_profile_on_signup` | auth.users 에 행이 생기면 profiles 행을 만드는 트리거, 기존 사용자 채움 | 초대한 사용자가 사용자 관리 화면에 나타나지 않던 문제 |
