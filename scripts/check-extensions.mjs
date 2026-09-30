@@ -18,7 +18,7 @@ import {
   stripSqlComments,
 } from "./lib.mjs";
 
-// 시작 마이그레이션(…_rbac.sql)의 함수와 트리거는 기본 구성이다. 그 밖에서 함수·트리거를 만들면 db-functions 확장이다.
+// 시작 마이그레이션(…_create_rbac.sql. 옛 이름 …_rbac.sql 도 같다)의 함수와 트리거는 기본 구성이다. 그 밖에서 함수·트리거를 만들면 db-functions 확장이다.
 const BASE_FUNCTIONS = ["custom_access_token_hook", "authorize"];
 const BASE_MIGRATION = /_rbac\.sql$/;
 const ADMIN_CLIENT = "lib/supabase/admin.ts";

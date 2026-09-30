@@ -326,6 +326,9 @@ describe("session-start", () => {
     mkdirSync(join(project, "node_modules"));
     write(join(project, ".env.local"), "NEXT_PUBLIC_SUPABASE_URL=https://dev.supabase.co\n");
     write(join(project, "lib/supabase/database.types.ts"));
+    assert.match(start(project).stdout, /커밋 전 검사\(\.husky\/pre-commit, \.husky\/commit-msg\)가 없다/);
+    write(join(project, ".husky/pre-commit"), "pnpm run verify:quick\n");
+    write(join(project, ".husky/commit-msg"), 'node scripts/check-commit.mjs --file "$1" --branch\n');
     assert.equal(start(project).stdout, "");
   });
   it("운영 프로젝트에 연결돼 있으면 알린다", () => {

@@ -1,0 +1,3 @@
+# .husky/commit-msg 로 저장한다. 커밋 메시지와 브랜치 이름의 형식을 본다. 실패하면 커밋되지 않는다.
+# 형식: 종류(범위): 요약 — .claude/rules/git.md. --no-verify 로 건너뛰지 않는다.
+node scripts/check-commit.mjs --file "$1" --branch

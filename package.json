@@ -17,15 +17,17 @@
     "check:env": "node scripts/check-env.mjs",
     "report:rules": "node scripts/report-rules.mjs",
     "report:scale": "node scripts/report-scale.mjs",
-    "verify:quick": "pnpm run check:app && pnpm run check:migrations && pnpm run check:extensions && pnpm run check:docs && pnpm run typecheck && pnpm run lint && pnpm run test:db && pnpm run report:rules",
-    "verify": "pnpm run check:app && pnpm run check:migrations && pnpm run check:extensions && pnpm run check:docs && pnpm run typecheck && pnpm run lint && pnpm run test && pnpm run build && pnpm run report:rules && pnpm run report:docs && pnpm run report:scale",
+    "verify:quick": "pnpm run check:app && pnpm run check:conventions && pnpm run check:migrations && pnpm run check:extensions && pnpm run check:docs && pnpm run typecheck && pnpm run lint && pnpm run test:db && pnpm run report:rules",
+    "verify": "pnpm run check:app && pnpm run check:conventions && pnpm run check:migrations && pnpm run check:extensions && pnpm run check:docs && pnpm run typecheck && pnpm run lint && pnpm run test && pnpm run build && pnpm run report:rules && pnpm run report:docs && pnpm run report:scale",
     "db:push": "node scripts/db-push.mjs",
     "db:types": "node scripts/db-types.mjs",
     "supabase": "supabase",
     "prepare": "husky",
     "check:docs": "node scripts/check-docs.mjs",
     "docs:new": "node scripts/new-doc.mjs",
-    "report:docs": "node scripts/report-docs.mjs"
+    "report:docs": "node scripts/report-docs.mjs",
+    "check:conventions": "node scripts/check-conventions.mjs",
+    "check:commit": "node scripts/check-commit.mjs --message"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

@@ -9,7 +9,7 @@ allowed-tools: Bash(pnpm verify) Bash(pnpm verify:quick) Bash(pnpm exec vitest r
 
 화면 이름이 비어 있으면 `docs/screens.md`의 목록을 보여 주고 어느 것인지 묻는다.
 
-1. **읽는다.** `docs/screens.md`의 해당 행, `docs/rules.md`, `docs/permissions.md`, `docs/design.md`, `docs/schema.md`, `.claude/rules/data-access.md`, `.claude/rules/ui.md`, 그리고 참조 구현 `app/(app)/admin/users/` 전체. 화면 목록에 행이 없으면 만들지 않고 `/write-docs`를 제안한다.
+1. **읽는다.** `.claude/rules/conventions.md` §1·§3(이름, 주석), `docs/screens.md`의 해당 행, `docs/rules.md`, `docs/permissions.md`, `docs/design.md`, `docs/schema.md`, `.claude/rules/data-access.md`, `.claude/rules/ui.md`, 그리고 참조 구현 `app/(app)/admin/users/` 전체. 화면 목록에 행이 없으면 만들지 않고 `/write-docs`를 제안한다.
 2. **브랜치를 알린다.** `git checkout -b feat/《화면-영문-이름》`. 실행은 사용자가 한다.
 3. **기록을 열고 계획을 보여 준다.** `pnpm docs:new work 《화면-이름》`. 요청과 아래 계획을 기록에 적고 승인을 기다린다.
    - 만들 파일과 파일마다 하는 일
@@ -18,7 +18,7 @@ allowed-tools: Bash(pnpm verify) Bash(pnpm verify:quick) Bash(pnpm exec vitest r
    - DB 변경: 없음 / 있음(있으면 `/new-migration`을 먼저 하고, 사용자가 적용을 끝낸 뒤 돌아온다)
    - 필요한 shadcn/ui 컴포넌트 가운데 아직 없는 것(설치 명령)
    - **하지 않을 것**
-4. **만든다.** `docs/schema.md`에 없는 열을 쓰지 않는다.
+4. **만든다.** `docs/schema.md`에 없는 열을 쓰지 않는다. 이름은 파일마다 정해진 형식을 따르고(`conventions.md` §1), 내보내는 것마다 바로 위에 `/** … */`로 무엇을 하는지와 코드로 알 수 없는 것(권한, 없을 때 돌려주는 값)을 쓴다. `pnpm check:conventions`가 확인한다.
 
 | 순서 | 파일 | 확인할 것 |
 |---|---|---|

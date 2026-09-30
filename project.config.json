@@ -5,6 +5,7 @@
     "db-functions"
   ],
   "db": {
-    "anonReadableTables": []
+    "anonReadableTables": [],
+    "namingExceptions": []
   }
 }

@@ -992,6 +992,18 @@ exceljs 를 쓴다.
     const result = check();
     assert.equal(result.status, 0, result.stderr);
   });
+  it("schema.md 를 고쳤으면 열마다 뜻이 있어야 한다", () => {
+    write("docs/work/2026-09-30-신청-목록-검색.md", WORK_OPEN);
+    const table = (meaning) =>
+      `# 데이터\n\n### memos — 메모\n\n| 열 | 종류 | 필수 | 기본값 | 뜻 |\n|---|---|---|---|---|\n| \`id\` | bigint | O | 자동 | ${meaning} |\n| \`body\` | text | O | | 내용(1~200자) |\n\n## 변경 기록\n\n| 날짜 | 마이그레이션 | 바꾼 것 | 이유 |\n|---|---|---|---|\n| 2026-09-30 | create_memos | memos | |\n`;
+    write("docs/schema.md", table(""));
+    const result = check();
+    assert.equal(result.status, 1, result.stdout);
+    assert.match(result.stderr, /열의 「뜻」이 비어 있다: memos\.id/);
+    assert.doesNotMatch(result.stderr, /memos\.body|create_memos/);
+    write("docs/schema.md", table("메모 번호"));
+    assert.equal(check().status, 0);
+  });
   it("새 화면의 경로가 화면 목록에 있어야 한다", () => {
     write("docs/work/2026-09-30-신청-목록-검색.md", WORK_OPEN);
     write(
@@ -1112,5 +1124,286 @@ exceljs 를 쓴다.
     const result = run("report-docs.mjs");
     assert.equal(result.status, 0);
     assert.match(result.stdout, /남은 일 없음/);
+  });
+});
+
+describe("check-conventions: 이름과 주석", () => {
+  const check = () => run("check-conventions.mjs");
+  // 시작 마이그레이션(beforeEach 가 만든다)은 이미 적용한 것으로 둔다. 적용한 파일은 보지 않는다.
+  beforeEach(() => write("supabase/.pushed", "20260101000000_rbac.sql\n"));
+  const DOC = "/** 신청 한 건을 읽는다. 없으면 null. */\n";
+
+  it("약속대로 쓴 화면은 통과한다", () => {
+    write(
+      "app/(app)/requests/[id]/queries.ts",
+      `import "server-only";\n/** 한 쪽에 보이는 행 수. */\nexport const PAGE_SIZE = 20;\n${DOC}export async function getRequestDetail(id: number) { return id; }\n`,
+    );
+    write(
+      "app/(app)/requests/[id]/actions.ts",
+      `"use server";\n/** 신청을 승인한다. 제출 상태일 때만 된다. */\nexport async function approveRequest() {}\n`,
+    );
+    write(
+      "app/(app)/requests/[id]/rules.ts",
+      `/** 자기 신청은 승인할 수 없다. 안 되면 문장, 되면 null. */\nexport function checkNotOwnRequest() { return null; }\n`,
+    );
+    write(
+      "app/(app)/requests/[id]/schema.ts",
+      `import { z } from "zod";\n/** 승인 폼의 입력. */\nexport const approveSchema = z.object({});\n`,
+    );
+    write(
+      "app/(app)/requests/[id]/page.tsx",
+      `export const metadata = { title: "신청" };\n// 주소(https://example.com)가 든 줄은 주석으로 보지 않는다\nconst url = "https://example.com"; // 뒤에 붙은 주석\n/** 신청 상세 화면. 신청자 본인이나 승인 권한이 있는 사람이 본다. */\nexport default async function RequestDetailPage() { return url; }\n`,
+    );
+    write(
+      "app/(app)/requests/[id]/loading.tsx",
+      "export default function Loading() { return null; }\n",
+    );
+    write(
+      "components/request-badge.tsx",
+      `/**\n * 상태 배지.\n * 제출·승인·반려를 색으로 구분한다.\n */\nexport function RequestBadge() { return null; }\n`,
+    );
+    write("components/ui/Whatever.tsx", "export function X() {}\n");
+    migration(
+      "20260201000000_create_requests",
+      "-- 비품 신청을 담는다. docs/schema.md\ncreate table public.requests (id bigint primary key);",
+    );
+    const result = check();
+    assert.equal(result.status, 0, result.stderr);
+  });
+
+  const bad = {
+    "설명 없는 조회 함수": [
+      "app/(app)/memos/queries.ts",
+      'import "server-only";\nexport async function listMemos() { return []; }\n',
+      /내보내는 함수 listMemos 위에 설명/,
+    ],
+    "설명과 선언 사이가 떨어진 함수": [
+      "lib/memo.ts",
+      "/** 메모를 다듬는다. */\n\nexport function trimMemo() {}\n",
+      /내보내는 함수 trimMemo 위에 설명/,
+    ],
+    "태그만 있는 설명": [
+      "lib/memo.ts",
+      "/**\n * @param value 값\n */\nexport function trimMemo(value: string) { return value; }\n",
+      /내보내는 함수 trimMemo 위에 설명/,
+    ],
+    "설명 없는 타입": [
+      "lib/memo.ts",
+      "export type MemoRow = { id: number };\n",
+      /내보내는 타입 MemoRow 위에 설명/,
+    ],
+    "약속과 다른 조회 이름": [
+      "app/(app)/memos/queries.ts",
+      `import "server-only";\n${DOC}export async function fetchMemos() { return []; }\n`,
+      /조회 함수 이름이 약속과 다르다: fetchMemos/,
+    ],
+    "하는 일을 말하지 않는 액션 이름": [
+      "app/(app)/memos/actions.ts",
+      `"use server";\n${DOC}export async function handleSubmit() {}\n`,
+      /서버 액션 이름이 하는 일을 말하지 않는다: handleSubmit/,
+    ],
+    "약속과 다른 규칙 이름": [
+      "app/(app)/memos/rules.ts",
+      `${DOC}export function validateMemo() { return null; }\n`,
+      /규칙 함수 이름이 약속과 다르다: validateMemo/,
+    ],
+    "Schema 로 끝나지 않는 스키마": [
+      "app/(app)/memos/schema.ts",
+      `import { z } from "zod";\n${DOC}export const memoForm = z.object({});\n`,
+      /Zod 스키마 이름이 Schema 로 끝나지 않는다: memoForm/,
+    ],
+    "Page 로 끝나지 않는 페이지": [
+      "app/(app)/memos/page.tsx",
+      `${DOC}export default function Memos() { return null; }\n`,
+      /컴포넌트 이름이 Page 로 끝나지 않는다: Memos/,
+    ],
+    "PascalCase 파일 이름": [
+      "components/MemoCard.tsx",
+      `${DOC}export function MemoCard() { return null; }\n`,
+      /파일 이름이 kebab-case 가 아니다: MemoCard\.tsx/,
+    ],
+    "camelCase 폴더 이름": [
+      "app/(app)/memoList/page.tsx",
+      `${DOC}export default function MemoListPage() { return null; }\n`,
+      /폴더 이름이 kebab-case 가 아니다: memoList/,
+    ],
+    "근거 없는 TODO": [
+      "lib/memo.ts",
+      `${DOC}export function trimMemo() {\n  // TODO: 나중에 고친다\n}\n`,
+      /근거 없는 TODO/,
+    ],
+    "존댓말 주석": [
+      "lib/memo.ts",
+      `${DOC}export function trimMemo() {\n  // 앞뒤 공백을 지웁니다.\n}\n`,
+      /주석이 존댓말이다/,
+    ],
+    "요 로 끝나는 주석": [
+      "lib/memo.ts",
+      `${DOC}export function trimMemo() {\n  // 여기서 공백을 지워요\n}\n`,
+      /주석이 존댓말이다/,
+    ],
+    "주석 처리한 코드": [
+      "lib/memo.ts",
+      `${DOC}export function trimMemo() {\n  // const old = value.trim();\n}\n`,
+      /주석 처리한 코드가 남아 있다/,
+    ],
+    "동사 없는 마이그레이션 이름": [
+      "supabase/migrations/20260201000000_requests.sql",
+      "-- 신청을 담는다\ncreate table public.requests (id bigint primary key);",
+      /마이그레이션 파일 이름이 무엇을 하는지 말하지 않는다/,
+    ],
+    "이유를 적지 않은 마이그레이션": [
+      "supabase/migrations/20260201000000_create_requests.sql",
+      "create table public.requests (id bigint primary key);",
+      /첫 줄에 왜 이 변경이 필요한지/,
+    ],
+  };
+  for (const [title, [path, text, pattern]] of Object.entries(bad)) {
+    it(`실패: ${title}`, () => {
+      write(path, text);
+      const result = check();
+      assert.equal(result.status, 1, result.stdout);
+      assert.match(result.stderr, pattern);
+      assert.match(result.stderr, /다음: /);
+    });
+  }
+
+  it("근거를 적은 TODO, 주소 변수 폴더, 「아니다」로 끝나는 주석은 통과한다", () => {
+    write(
+      "app/(app)/memos/[memoId]/page.tsx",
+      `${DOC}export default function MemoPage() {\n  // TODO(2026-09-30-메모-상세): 첨부 파일 표시\n  // 숨기는 것은 편의다. 보안이 아니다.\n  return null;\n}\n`,
+    );
+    assert.equal(check().status, 0);
+  });
+});
+
+describe("check-commit: 커밋 메시지·브랜치·PR", () => {
+  const message = (text) => run("check-commit.mjs", ["--message", text]);
+  const pr = (env) => run("check-commit.mjs", ["--pr"], { env });
+  const BODY = [
+    "## 무엇을, 왜",
+    "신청 상세에서 승인·반려를 할 수 있게 한다.",
+    "## 확인 방법",
+    "- 담당자로 로그인 → /requests/1 → 승인",
+    "## 검증",
+    "- `pnpm verify`: 통과",
+    "## 화면 캡처",
+    "없음",
+    "## DB 변경",
+    "없음",
+    "## 하지 않은 것과 남은 것",
+    "- 없음",
+  ].join("\n");
+
+  const good = [
+    "feat(requests): 신청 상세에 승인·반려 버튼 추가",
+    "fix: 없는 신청을 열면 오류 화면이 뜨던 것을 고침",
+    "refactor(admin-users)!: 역할 조회를 features 로 옮김",
+    "feat(ui): 관리자 도구 뼈대와 대시보드 (#7)",
+    "fix(auth): 공개 경로를 경로 단위로 판정\n\n/login 으로 시작하는 모든 경로가 로그인 없이 열렸다.\n\nRefs: docs/work/2026-09-30-공개-경로.md",
+    "Merge branch 'main' into feat/request-detail",
+    'Revert "feat(requests): 신청 상세"',
+  ];
+  for (const text of good) {
+    it(`통과: ${text.split("\n")[0]}`, () => {
+      const result = message(text);
+      assert.equal(result.status, 0, result.stderr);
+    });
+  }
+
+  const bad = {
+    "신청 상세 화면 추가": /「종류\(범위\): 요약」 형식이 아니다/,
+    "Feat(requests): 신청 상세 화면 추가": /형식이 아니다/,
+    "feat:신청 상세 화면 추가": /형식이 아니다/,
+    "feature(requests): 신청 상세 화면 추가": /형식이 아니다/,
+    "feat(Requests): 신청 상세 화면 추가": /범위가 kebab-case 가 아니다/,
+    "fix: 수정": /요약이 무엇을 했는지 말하지 않는다/,
+    "docs: 문서를 고쳤다.": /요약이 마침표로 끝난다/,
+    [`feat: ${"가".repeat(70)}`]: /제목이 72자를 넘는다/,
+    "feat: 신청 상세 화면 추가\n본문을 바로 붙였다": /빈 줄이 없다/,
+    [`feat: 신청 상세 화면 추가\n\n${"나".repeat(101)}`]:
+      /본문 한 줄이 100자를 넘는다/,
+  };
+  for (const [text, pattern] of Object.entries(bad)) {
+    it(`실패: ${text.split("\n")[0].slice(0, 40)}`, () => {
+      const result = message(text);
+      assert.equal(result.status, 1, result.stdout);
+      assert.match(result.stderr, pattern);
+      assert.match(result.stderr, /다음: /);
+    });
+  }
+
+  it("메시지 파일의 안내 줄(#)과 가위표 아래는 보지 않는다", () => {
+    const file = write(
+      "COMMIT_EDITMSG",
+      "feat(requests): 신청 상세 화면 추가\n\n# 이 줄은 안내다\n# ------------------------ >8 ------------------------\ndiff --git a/x b/x\n+아주 긴 줄 " +
+        "x".repeat(200),
+    );
+    const result = run("check-commit.mjs", ["--file", file]);
+    assert.equal(result.status, 0, result.stderr);
+  });
+
+  it("PR: 제목과 본문이 맞으면 통과하고, 브랜치 이름은 알리기만 한다", () => {
+    const result = pr({
+      PR_TITLE: "feat(requests): 신청 상세에 승인·반려 버튼 추가",
+      PR_BODY: BODY,
+      PR_AUTHOR: "someone",
+      PR_BRANCH: "my_branch",
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /브랜치 my_branch/);
+  });
+  it("PR: 제목이 형식과 다르면 실패한다", () => {
+    const result = pr({
+      PR_TITLE: "신청 상세 작업",
+      PR_BODY: BODY,
+      PR_AUTHOR: "someone",
+      PR_BRANCH: "feat/request-detail",
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /PR 제목/);
+  });
+  it("PR: 절을 지웠거나 비웠거나 자리 표시가 남으면 실패한다", () => {
+    const result = pr({
+      PR_TITLE: "feat(requests): 신청 상세에 승인·반려 버튼 추가",
+      PR_BODY:
+        "## 무엇을, 왜\n《한두 문장》\n## 확인 방법\n<!-- 안내 -->\n## 검증\n- 통과\n## 하지 않은 것과 남은 것\n- 없음",
+      PR_AUTHOR: "someone",
+      PR_BRANCH: "feat/request-detail",
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /「## DB 변경」 절이 없다/);
+    assert.match(result.stderr, /「## 확인 방법」 절이 비어 있다/);
+    assert.match(result.stderr, /채우지 않은 자리/);
+  });
+  it("PR: 도구가 만든 PR 은 보지 않는다", () => {
+    const result = pr({
+      PR_TITLE: "Bump next from 16.3.6 to 16.3.7",
+      PR_BODY: "",
+      PR_AUTHOR: "dependabot[bot]",
+      PR_BRANCH: "dependabot/npm_and_yarn/next-16.3.7",
+    });
+    assert.equal(result.status, 0, result.stderr);
+  });
+  it("양식 파일을 채우면 PR 검사를 통과한다", () => {
+    // 프로젝트에서는 .github/ 에, 템플릿에서는 github/ 에 있다.
+    const template = [".github", "github"]
+      .map((dir) => join(SCRIPTS, "..", dir, "pull_request_template.md"))
+      .map((path) => {
+        try {
+          return readFileSync(path, "utf8");
+        } catch {
+          return "";
+        }
+      })
+      .find((text) => text !== "");
+    assert.ok(template, "pull_request_template.md 가 없다");
+    const result = pr({
+      PR_TITLE: "feat(requests): 신청 상세에 승인·반려 버튼 추가",
+      PR_BODY: template.replace(/《[^》]*》/g, "없음"),
+      PR_AUTHOR: "someone",
+      PR_BRANCH: "feat/request-detail",
+    });
+    assert.equal(result.status, 0, result.stderr);
   });
 });

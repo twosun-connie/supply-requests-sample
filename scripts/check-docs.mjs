@@ -96,6 +96,20 @@ if (migrations.length > 0 && !changed.includes("docs/schema.md")) {
   );
 }
 
+// 3-1. docs/schema.md 를 고쳤으면 열마다 「뜻」이 있어야 한다. 고친 작업에서만 본다(옛 문서를 한꺼번에 막지 않는다).
+if (changed.includes("docs/schema.md") && files.get("docs/schema.md") !== "D") {
+  const blank = columnsWithoutMeaning(
+    readText(join(ROOT, "docs", "schema.md")),
+  );
+  if (blank.length > 0) {
+    add(
+      "docs/schema.md",
+      `열의 「뜻」이 비어 있다: ${blank.slice(0, 8).join(", ")}${blank.length > 8 ? ` 외 ${blank.length - 8}개` : ""}`,
+      "마이그레이션의 comment on column 과 같은 말로 채운다. id·created_at 도 적는다(.claude/rules/conventions.md §4)",
+    );
+  }
+}
+
 // 4. 새 화면은 docs/screens.md 에 경로가 있어야 한다.
 const screens = readText(join(ROOT, "docs", "screens.md"));
 for (const path of changed) {
@@ -161,6 +175,35 @@ if (decisions.length > 0 && decisionChanged.length === 0) {
 }
 
 finish("문서 검사", problems, notices);
+
+/** docs/schema.md 의 열 표(머리글의 마지막 칸이 「뜻」)에서 뜻이 빈 열을 《테이블》.《열》 로 돌려준다. */
+function columnsWithoutMeaning(markdown) {
+  const found = [];
+  let table = "";
+  let inColumns = false;
+  for (const line of markdown.split(/\r?\n/)) {
+    const heading = line.match(/^###\s+([^\s—-]+)/);
+    if (heading !== null) table = heading[1].replaceAll("`", "");
+    if (!line.trim().startsWith("|")) {
+      inColumns = false;
+      continue;
+    }
+    const cells = line
+      .trim()
+      .replace(/^\||\|$/g, "")
+      .split("|")
+      .map((cell) => cell.trim());
+    if (cells[0] === "열" && cells.at(-1) === "뜻") {
+      inColumns = true;
+      continue;
+    }
+    if (!inColumns || /^:?-+:?$/.test(cells[0])) continue;
+    if ((cells.at(-1) ?? "") === "") {
+      found.push(`${table}.${cells[0].replaceAll("`", "")}`);
+    }
+  }
+  return found;
+}
 
 function routeOf(path) {
   const parts = path

@@ -36,6 +36,7 @@ begin
   return new;
 end;
 $$;
+comment on function private.guard_request_status() is '상태가 허용한 순서로만 바뀌게 막는다. 트리거 requests_status_guard 가 부른다';
 revoke execute on function private.guard_request_status() from anon, authenticated, public;
 
 create trigger requests_status_guard before update of status on public.requests

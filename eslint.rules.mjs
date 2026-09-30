@@ -31,6 +31,26 @@ const AS_ASSERTION = {
 };
 const BASE = [GET_SESSION, SELECT_ALL, ROLE_COMPARE, RAW_ENV];
 
+// 이름 짓는 법(.claude/rules/conventions.md). 타입 정보가 필요 없는 것만 본다.
+// DB 의 열 이름(snake_case)은 구조 분해로 받을 때와 객체의 키로 쓸 때만 나오므로 그 둘은 보지 않는다.
+const NAMING = [
+  "error",
+  {
+    selector: "variable",
+    format: ["camelCase", "UPPER_CASE", "PascalCase"],
+    leadingUnderscore: "allow",
+  },
+  { selector: "variable", modifiers: ["destructured"], format: null },
+  { selector: "function", format: ["camelCase", "PascalCase"] },
+  {
+    selector: "parameter",
+    format: ["camelCase", "PascalCase"],
+    leadingUnderscore: "allow",
+  },
+  { selector: "parameter", modifiers: ["destructured"], format: null },
+  { selector: "typeLike", format: ["PascalCase"] },
+];
+
 export const projectRules = [
   {
     files: ["**/*.{ts,tsx}"],
@@ -73,7 +93,10 @@ export const projectRules = [
       "lib/*.ts",
     ],
     ignores: ["lib/utils.ts"],
-    rules: { "no-restricted-syntax": ["error", ...BASE, AS_ASSERTION] },
+    rules: {
+      "no-restricted-syntax": ["error", ...BASE, AS_ASSERTION],
+      "@typescript-eslint/naming-convention": NAMING,
+    },
   },
   {
     // Supabase 클라이언트를 만드는 곳. 공식 예제의 코드를 그대로 둔다.
