@@ -13,13 +13,14 @@
 
 ## 화면 뼈대 (템플릿이 준다. 바꾸지 않고 채운다)
 
-- **상단 헤더**(`components/app-header.tsx`): 서비스 이름 · 메뉴(`lib/navigation.ts`, 권한 코드로 거른다) · 사용자 이메일 · 역할 · 로그아웃. 사이드바는 《쓰지 않는다》.
-- **본문**: 가운데, 최대 폭 `max-w-5xl`, 안쪽 여백 `px-4 py-6`(`app/(app)/layout.tsx`). 폼 화면은 `max-w-xl`.
+- **관리자 도구 뼈대**(shadcn admin kit 방식, `app/(app)/layout.tsx`): 왼쪽 사이드바(`components/app-sidebar.tsx`, 접으면 아이콘만, 좁은 화면은 서랍) + 위 띠(`components/app-topbar.tsx`: 여닫기 · 빵부스러기 · 사용자 메뉴) + 본문 + 아래 띠. 메뉴는 `lib/navigation.ts`(아이콘 · 묶음 · 권한 코드).
+- **본문**: 최대 폭 `max-w-7xl`, 안쪽 여백 `px-4 py-6 sm:px-6`. 폼 화면은 `max-w-xl`의 `Card` 안.
 - **화면 머리**(`components/page-header.tsx`): 제목 · 한 줄 설명 · 오른쪽에 주 동작 버튼 하나. 모든 화면이 이것으로 시작한다.
 - **목록 화면**: 화면 머리 → 필터(주소의 쿼리) → 표(`rounded-lg border bg-card` 상자 안의 `Table`) → "전체 N건 · 쪽" 과 이전·다음.
 - **상세 화면**: 화면 머리(제목에 번호, 오른쪽에 상태 `Badge`와 「목록으로」) → 정보 상자(`rounded-lg border bg-card p-4`, 이름표는 `text-sm text-muted-foreground`, 값은 `font-medium`) → 처리 정보 상자(`bg-muted/40`) → 동작 폼.
 - **폼 화면**: 화면 머리 → `Field` 세로 나열 → 맨 아래 주 버튼과 취소 링크.
-- **로그인**: 가운데 카드(`Card`), 위에 서비스 이름과 한 줄 설명(`project.config.json`).
+- **로그인**: 가운데 카드(`Card`), 위에 로고(`components/app-logo.tsx`)와 한 줄 설명(`project.config.json`). 가입 링크·소셜 로그인은 없다.
+- **대시보드**(있을 때): 화면 머리 → 통계 카드 2~4개(`grid gap-4 sm:grid-cols-2 lg:grid-cols-4`) → 최근 항목 표.
 
 ## 상태
 
@@ -34,6 +35,15 @@
 - 375px 폭에서 가로 스크롤이 없다(표는 `overflow-x-auto` 상자 안)
 - 색 이름 클래스(`bg-blue-500`)를 쓰지 않는다. 뜻으로 된 클래스(`bg-primary`, `text-muted-foreground`)만
 
+## 쓰는 블록 목록 (shadcn studio)
+
+화면의 배치를 가져올 블록이다. 여기에 없는 블록은 넣기 전에 묻는다(`/add-block`). 앱 뼈대 블록은 넣지 않는다.
+
+| 화면 | 블록 이름 | 무료/Pro | 넣은 날 | 비고 |
+|---|---|---|---|---|
+| 《로그인》 | 《login-page-01》 | 《무료》 | 《YYYY-MM-DD》 | 《카드와 배경만. 가입·소셜 로그인은 지움》 |
+
 ## 하지 않는 것
 
-- 《애니메이션, 다크 모드 전환 버튼, 사이드바 등 이번에 넣지 않는 것》
+- 《애니메이션, 다크 모드 전환 버튼, 차트 등 이번에 넣지 않는 것》
+- 앱 뼈대를 바꾸는 블록(`application-shell-*`, `dashboard-shell-*`)

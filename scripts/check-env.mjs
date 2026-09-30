@@ -81,7 +81,9 @@ check(
   "개발용과 운영용 Supabase 프로젝트를 따로 만든다",
 );
 
-const siteName = String(readJson(join(ROOT, "project.config.json"))?.name ?? "");
+const siteName = String(
+  readJson(join(ROOT, "project.config.json"))?.name ?? "",
+);
 check(
   siteName !== "" && !/《/.test(siteName),
   `project.config.json 의 name(${siteName || "없음"})`,

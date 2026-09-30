@@ -60,7 +60,7 @@ AI는 대시보드를 바꾸지 못한다. 아래가 필요한 작업이면 **�
 - 초대·재설정 메일의 링크는 `/auth/confirm`이 받아 `verifyOtp()`로 확인한다 [문서].
 - **Supabase 공식 예제의 `/auth/confirm`은 `next`를 확인하지 않고 `redirect(next)` 한다.** `redirect()`는 다른 사이트의 주소도 받는다 [문서]. 그대로 복사하지 않는다. 참조 구현을 쓴다.
 - 밖에서 온 값(`?next=`, 폼의 숨은 값)으로 화면을 옮길 때는 `lib/safe-redirect.ts`의 `safeRedirectPath()`를 거친다. `/`로 시작하는지만 보면 `//evil.example`을 놓친다 [실측].
-- 로그인 없이 열 수 있는 경로는 `lib/supabase/proxy.ts`의 `PUBLIC_PATHS`에만 더한다. 더할 때마다 사용자에게 알린다.
+- 로그인 없이 열 수 있는 경로는 `lib/supabase/proxy.ts`의 `PUBLIC_PATHS`에만 더한다. 더할 때마다 사용자에게 알린다. 판정은 경로 단위다(`/login`과 `/login/…`만. `/login-x`는 공개가 아니다). 앞 글자 비교(`startsWith(path)`)로 바꾸지 않는다.
 - 비밀번호, 토큰, 메일의 `token_hash`를 로그·오류 문구·주소의 다른 쿼리에 넣지 않는다.
 
 ## 3. 입력과 출력
