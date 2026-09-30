@@ -27,6 +27,7 @@
 - 대시보드: 상태별 건수 카드(studio statistics-card), 세 조회는 Promise.all
 - 예제 페이지(app/*-01)와 예제 내용(소셜 아이콘, 언어 선택, 가짜 프로필)을 지움
 - docs/design.md 에 쓰는 블록 목록, docs/screens.md 에 대시보드
+- lib/supabase/proxy.ts: 공개 경로를 경로 단위로 판정(/login 과 /login/ 아래만)
 - 템플릿 v1.8.0 의 규칙·검사 반영: /add-block 스킬, check:app(예제 페이지·예제 내용), report:scale(shadcn CLI 가 만든 파일 제외)
 
 ## 검증
@@ -46,5 +47,5 @@
 
 ## 다음에 막을 것
 
-- studio 블록을 넣으면 app/(블록 이름)/page.tsx 예제 페이지가 딸려 온다 — 지우는 것을 잊으면 공개 경로에 예제가 열린다 — check:app 에 "app/ 바로 아래의 모르는 화면" 검사를 더한다
+- studio 블록을 넣으면 app/(블록 이름)/page.tsx 예제 페이지가 딸려 온다 — 지우는 것을 잊으면 예제가 열린다. 공개 경로를 앞 글자로 판정해서 /login-page-01 은 로그인 없이도 열렸다(운영 주소에서 307 대신 404 로 확인) — check:app 에 뼈대 밖의 화면 검사를 더하고, lib/supabase/proxy.ts 는 경로 단위로 판정한다
 - shadcn add 가 파일 덮어쓰기를 물으며 멈춘다 — 터미널이 아니면 중단된다 — 명령 앞에 `yes n |` 를 붙이는 절차를 적는다

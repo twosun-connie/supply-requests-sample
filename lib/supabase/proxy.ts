@@ -37,8 +37,10 @@ export async function updateSession(request: NextRequest) {
 
   // createServerClient 와 getClaims() 사이에 다른 코드를 넣지 않는다.
   const { data } = await supabase.auth.getClaims();
-  const isPublic = PUBLIC_PATHS.some((path) =>
-    request.nextUrl.pathname.startsWith(path),
+  // 경로 전체가 같거나 그 아래일 때만 공개다. 앞 글자만 보면 /login-page-01 같은 경로까지 열린다.
+  const { pathname } = request.nextUrl;
+  const isPublic = PUBLIC_PATHS.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
   );
 
   if (!data?.claims && !isPublic) {
