@@ -13,6 +13,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "lib/supabase/database.types.ts",
+    // shadcn CLI 가 만든 파일이다. 고치지 않는다.
+    "hooks/use-mobile.ts",
   ]),
 ]);
 

@@ -4,10 +4,17 @@
  * 중립적인 업무 도구: 밝은 배경, 파란 계열 기본색, 촘촘한 표.
  */
 :root {
+  --background: oklch(0.985 0.002 250);
   --primary: oklch(0.52 0.19 262);
   --primary-foreground: oklch(0.985 0 0);
   --ring: oklch(0.7 0.13 262);
   --radius: 0.5rem;
+  --sidebar: oklch(1 0 0);
+  --sidebar-primary: oklch(0.52 0.19 262);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.95 0.025 262);
+  --sidebar-accent-foreground: oklch(0.4 0.17 262);
+  --sidebar-ring: oklch(0.7 0.13 262);
 }
 
 .dark {

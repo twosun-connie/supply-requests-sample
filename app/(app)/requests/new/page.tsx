@@ -1,5 +1,6 @@
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
+import { Card, CardContent } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth";
 import { listSelectableItems } from "./queries";
 import { RequestForm } from "./request-form";
@@ -21,7 +22,11 @@ export default async function NewRequestPage() {
           description="관리자에게 문의해 주세요."
         />
       ) : (
-        <RequestForm items={items} />
+        <Card>
+          <CardContent>
+            <RequestForm items={items} />
+          </CardContent>
+        </Card>
       )}
     </div>
   );
