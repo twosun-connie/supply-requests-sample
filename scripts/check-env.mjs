@@ -81,6 +81,13 @@ check(
   "개발용과 운영용 Supabase 프로젝트를 따로 만든다",
 );
 
+const siteName = String(readJson(join(ROOT, "project.config.json"))?.name ?? "");
+check(
+  siteName !== "" && !/《/.test(siteName),
+  `project.config.json 의 name(${siteName || "없음"})`,
+  "서비스 이름을 적는다. 헤더·로그인 화면·탭 제목에 쓰인다",
+);
+
 const vercel = readJson(join(ROOT, "vercel.json")) ?? {};
 const regions = Array.isArray(vercel.regions) ? vercel.regions.map(String) : [];
 const supabaseRegion = projects.prod.region || projects.dev.region;

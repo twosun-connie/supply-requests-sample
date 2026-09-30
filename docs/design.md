@@ -4,15 +4,19 @@
 
 업무용 도구. 장식보다 읽기 쉬움. 한 화면에 한 가지 일.
 
-## 프리셋
+## 테마
 
 - shadcn/ui 프리셋: 기본값(base-nova).
-- 색·간격·모서리는 `app/globals.css`의 변수만 쓴다.
+- 색·모서리는 `app/theme.css`의 변수만 고친다. 기본색: 파란 계열 oklch(0.52 0.19 262). 모서리 0.5rem.
+- 글꼴: Noto Sans KR. 본문 14px, 제목 24px.
+- 다크 모드: 쓰지 않는다.
 
-## 화면 뼈대
+## 화면 뼈대 (템플릿이 준다)
 
-- 본문은 가운데, 최대 폭 `max-w-4xl`, 안쪽 여백 `p-4`. 사이드바는 이번 범위가 아니다.
-- 화면 제목은 `h1`, `text-xl font-semibold`.
+- 상단 헤더(`components/app-header.tsx`): 서비스 이름 · 메뉴(`lib/navigation.ts`) · 사용자 · 역할 · 로그아웃. 사이드바는 쓰지 않는다.
+- 본문은 가운데, 최대 폭 `max-w-5xl`, `px-4 py-6`(`app/(app)/layout.tsx`). 폼 화면은 `max-w-xl`.
+- 모든 화면은 `PageHeader`(제목·설명·주 동작)로 시작한다. 목록은 `rounded-lg border bg-card` 상자 안의 표, 빈 상태는 `EmptyState`.
+- 상세: 정보 상자(`bg-card`) → 처리 정보 상자(`bg-muted/40`) → 동작 폼.
 
 ## 화면 공통 규칙
 
