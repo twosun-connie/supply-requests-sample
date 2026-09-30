@@ -329,7 +329,7 @@ export async function save(_previous, formData) {
   const good = () => {
     write(
       "app/(app)/memos/page.tsx",
-      "export default async function Page() { await requireUser(); return null; }",
+      'export default async function Page() { await requireUser(); return <PageHeader title="메모" />; }',
     );
     write(
       "app/(app)/memos/queries.ts",
@@ -370,6 +370,11 @@ export async function save(_previous, formData) {
       "app/(app)/memos/page.tsx",
       "export default async function Page() { const user = await getUser(); return null; }",
       /로그인을 확인하지 않는다/,
+    ],
+    "PageHeader 없이 시작하는 페이지": [
+      "app/(app)/memos/page.tsx",
+      "export default async function Page() { await requireUser(); return <main><h1>메모</h1></main>; }",
+      /PageHeader 로 시작하지 않는다/,
     ],
     "클라이언트 컴포넌트인 페이지": [
       "app/(app)/memos/page.tsx",
@@ -538,7 +543,7 @@ ${body}
     );
     write(
       "app/(app)/memos/[id]/page.tsx",
-      "export default async function Page() { await requireUser(); const memo = null; if (memo === null) notFound(); return null; }",
+      'export default async function Page() { await requireUser(); const memo = null; if (memo === null) notFound(); return <PageHeader title="메모" />; }',
     );
     write(
       "app/(auth)/login/actions.ts",

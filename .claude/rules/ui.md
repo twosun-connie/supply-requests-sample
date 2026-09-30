@@ -12,6 +12,9 @@ paths:
 
 ## 1. 컴포넌트
 
+- 화면은 템플릿의 뼈대 위에 만든다: 상단 헤더는 `app/(app)/layout.tsx`가 그리므로 화면은 `<main>`을 만들지 않는다. 화면은 `PageHeader`(`components/page-header.tsx`)로 시작하고, 빈 상태는 `EmptyState`(`components/empty-state.tsx`), 표는 `rounded-lg border bg-card` 상자 안의 `Table`이다. 모양의 근거는 `docs/design.md` 「화면 뼈대」.
+- 새 화면을 만들면 `lib/navigation.ts`의 `NAV_ITEMS`에 메뉴 한 줄을 더한다(상세·새 항목 같은 하위 화면은 넣지 않는다). 권한이 필요한 화면은 `permission`을 적는다.
+- 색은 `app/theme.css`의 변수로 정한다. `globals.css`는 shadcn CLI가 관리하므로 고치지 않는다.
 - `components/ui/`의 shadcn/ui 컴포넌트로 조립한다. 없는 컴포넌트는 `pnpm dlx shadcn@latest add 《이름》`을 사용자에게 제안한다(설치는 승인 뒤). 패키지 이름은 `shadcn`이다. 설치되기 전에 같은 이름의 파일을 손으로 쓰지 않는다. 이미 있는 컴포넌트로 조립하고 보고에 적는다.
 - `components/ui/`의 파일을 직접 고치지 않는다. 바꿔야 하면 감싸는 컴포넌트를 `components/`에 만든다.
 - 컴포넌트의 속성은 설치된 파일을 읽어 확인한다. shadcn/ui는 버전에 따라 기반 라이브러리(Base UI, Radix)가 달라 옛 예제와 속성이 다르다.

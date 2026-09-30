@@ -72,6 +72,13 @@ for (const path of files) {
       "조회 결과가 없으면 next/navigation 의 notFound() 를 부른다. 정책이 막은 행도 0행으로 오므로 같은 길로 처리된다",
     );
   }
+  if (name === "page.tsx" && inApp && !/<PageHeader\b/.test(text)) {
+    add(
+      path,
+      "화면이 PageHeader 로 시작하지 않는다. 화면마다 제목 모양이 달라진다.",
+      "components/page-header.tsx 의 PageHeader 를 쓴다(title, description, actions). <main> 은 app/(app)/layout.tsx 가 그린다",
+    );
+  }
   if (name === "page.tsx" && isClient) {
     add(
       path,
