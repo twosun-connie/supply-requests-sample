@@ -6,6 +6,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/page-header";
 import { requirePermission } from "@/lib/auth";
 import { Constants } from "@/lib/supabase/database.types";
 import { listUsers, PAGE_SIZE } from "./queries";
@@ -20,44 +22,49 @@ export default async function UsersPage({
   const { rows, total } = await listUsers(page);
 
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4">
-      <h1 className="text-xl font-semibold">사용자 관리</h1>
+    <div className="flex flex-col gap-4">
+      <PageHeader
+        title="사용자 관리"
+        description="구성원의 역할을 정합니다. 역할은 다음 로그인부터 적용됩니다."
+      />
       {rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          아직 사용자가 없습니다. 대시보드에서 사용자를 초대하면 여기에
-          나타납니다.
-        </p>
+        <EmptyState
+          title="아직 사용자가 없습니다"
+          description="Supabase 대시보드에서 사용자를 초대하면 여기에 나타납니다."
+        />
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>이름</TableHead>
-              <TableHead>가입일</TableHead>
-              <TableHead>역할</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row.id}>
-                <TableCell>{row.fullName}</TableCell>
-                <TableCell>{formatDate(row.createdAt)}</TableCell>
-                <TableCell>
-                  <RoleForm
-                    userId={row.id}
-                    role={row.role}
-                    roles={Constants.public.Enums.app_role}
-                    disabled={row.id === actor.id}
-                  />
-                </TableCell>
+        <div className="overflow-x-auto rounded-lg border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>이름</TableHead>
+                <TableHead>가입일</TableHead>
+                <TableHead>역할</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row) => (
+                <TableRow key={row.id}>
+                  <TableCell>{row.fullName}</TableCell>
+                  <TableCell>{formatDate(row.createdAt)}</TableCell>
+                  <TableCell>
+                    <RoleForm
+                      userId={row.id}
+                      role={row.role}
+                      roles={Constants.public.Enums.app_role}
+                      disabled={row.id === actor.id}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       )}
       <p className="text-sm text-muted-foreground">
         전체 {total}명 · {page} / {Math.max(Math.ceil(total / PAGE_SIZE), 1)} 쪽
       </p>
-    </main>
+    </div>
   );
 }
 

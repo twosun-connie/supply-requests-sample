@@ -1,0 +1,17 @@
+/*
+ * 테마. shadcn/ui 기본 프리셋(app/globals.css) 위에 이 파일만 덮어쓴다.
+ * globals.css 는 shadcn CLI 가 관리한다. 색을 바꾸려면 여기의 변수만 고친다. 근거는 docs/design.md.
+ * 중립적인 업무 도구: 밝은 배경, 파란 계열 기본색, 촘촘한 표.
+ */
+:root {
+  --primary: oklch(0.52 0.19 262);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.7 0.13 262);
+  --radius: 0.5rem;
+}
+
+.dark {
+  --primary: oklch(0.7 0.15 262);
+  --primary-foreground: oklch(0.15 0.03 262);
+  --ring: oklch(0.55 0.15 262);
+}
