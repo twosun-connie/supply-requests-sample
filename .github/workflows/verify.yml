@@ -1,0 +1,37 @@
+# .github/workflows/verify.yml 로 저장한다. PR 마다 전체 검증과 문서 검사를 돌린다.
+# 로컬의 훅과 커밋 전 검사는 건너뛸 수 있다. 여기가 마지막 방어선이다. 브랜치 보호에서 이 검사를 필수로 건다.
+name: verify
+on:
+  pull_request:
+  push:
+    branches: [main]
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # 빌드에 필요한 공개 값이다. 비밀 값이 아니다. 저장소의 Variables 에 개발 프로젝트의 값을 넣는다.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # 문서 검사가 기본 브랜치에서 갈라진 지점을 찾는다
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: node --test .claude/hooks/hooks.test.mjs
+      - run: node --test scripts/scripts.test.mjs
+      - run: pnpm verify
+      - name: 문서 검사(끝난 작업 기록이 있는가)
+        if: github.event_name == 'pull_request'
+        run: pnpm check:docs --final --base "origin/${{ github.base_ref }}"
+      - run: pnpm check:deps

@@ -1,0 +1,56 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+# .gitignore 에 더한다. create-next-app 이 만든 내용은 그대로 둔다.
+
+# 환경 변수: 예시 파일만 커밋한다. create-next-app 의 `.env*` 가 예시까지 무시하므로 예외를 둔다.
+.env*
+!.env.example
+
+# Supabase CLI 의 연결 정보와 적용 기록(이 PC 에만 있는 값)
+supabase/.temp/
+supabase/.branches/
+supabase/.pushed
+
+# Claude Code: 개인 설정과 워크트리만 무시한다. .claude/ 전체를 무시하지 않는다(규칙·훅·스킬은 커밋한다).
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md

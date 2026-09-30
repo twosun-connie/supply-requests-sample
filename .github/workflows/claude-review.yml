@@ -1,0 +1,32 @@
+# .github/workflows/claude-review.yml 로 저장한다. 쓰려면 Claude GitHub App 설치와 비밀 값 등록이 필요하다(템플릿 README §3의 13번).
+# 공식 문서의 코드 리뷰 예시를 그대로 쓴다: https://code.claude.com/docs/en/github-actions
+# 이 저장소의 기준(AGENTS.md, .claude/rules/)은 Claude 가 저장소에서 읽는다. 프롬프트에 기준을 길게 적지 않는다.
+# 워크플로 파일 없이 쓰려면 Code Review(https://code.claude.com/docs/en/code-review)를 쓴다.
+name: claude-review
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
+          plugins: "code-review@claude-code-plugins"
+          prompt: "/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
+          claude_args: '--allowedTools "mcp__github_inline_comment__create_inline_comment" --max-turns 30'

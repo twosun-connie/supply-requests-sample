@@ -1,0 +1,14 @@
+# 공급망 설정. 값을 느슨하게 바꾸지 않는다. 바꿔야 하면 이유를 사용자에게 보고한다.
+# 게시된 지 하루가 안 된 버전은 설치하지 않는다(단위: 분).
+minimumReleaseAge: 1440
+# 이전 릴리스보다 신뢰 수준(출처 증명)이 내려간 버전은 설치하지 않는다.
+# 게시된 지 30일이 지난 버전은 이 검사에서 뺀다. 빼지 않으면 오래된 정상 패키지도 걸려 설치가 안 된다.
+trustPolicy: no-downgrade
+trustPolicyIgnoreAfter: 43200
+# 의존성의 의존성이 git 주소나 tarball 을 가리키면 설치하지 않는다.
+blockExoticSubdeps: true
+# 설치 스크립트는 아래에 true 로 적은 패키지만 실행한다.
+strictDepBuilds: true
+allowBuilds:
+  sharp: false
+  unrs-resolver: false
